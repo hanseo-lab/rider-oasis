@@ -89,7 +89,7 @@ npm install
 npm run dev
 ```
 
-브라우저에서 `http://localhost:5173` (또는 표시된 포트)로 접속
+브라우저에서 `https://rider-oasis.vercel.app/` (또는 표시된 포트)로 접속
 
 ### 배포
 ```bash
