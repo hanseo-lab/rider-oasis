@@ -6,6 +6,8 @@ import SignupPage from './pages/SignupPage';
 import RouteSearchPage from './pages/RouteSearchPage';
 import MainMapPage from './pages/MainMapPage';
 import MyPage from './pages/MyPage';
+import CommunityPage from './pages/CommunityPage';
+import PostCreatePage from './pages/PostCreatePage';
 import Navigation from './components/Navigation';
 
 // 인증 필요한 라우트 보호
@@ -46,6 +48,8 @@ function App() {
           <Route index element={<MainMapPage />} />
           <Route path="route-search" element={<RouteSearchPage />} />
           <Route path="my-page" element={<MyPage />} />
+          <Route path="community" element={<CommunityPage />} />
+          <Route path="community/create" element={<PostCreatePage />} />
         </Route>
 
         {/* 404 */}

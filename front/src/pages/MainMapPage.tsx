@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
-import { Loader2, ThermometerSun, Trees, Home, Navigation, Snowflake, AlertTriangle } from 'lucide-react';
+import { Loader2, ThermometerSun, Trees, Home, Navigation, Snowflake, AlertTriangle, MessageSquare } from 'lucide-react';
 import { getLayer, getShelters } from '../lib/ggClimate';
 import { userAPI } from '../api/user';
+import { communityAPI, type CommunityPostResponse } from '../api/community';
 import type { SeasonMode } from '../types/user';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -30,6 +31,16 @@ const summerShelterIcon = new L.Icon({
 // 겨울 쉼터: 주황색 마커
 const winterShelterIcon = new L.Icon({
   iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-orange.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+});
+
+// 커뮤니티 게시글: 보라색 마커
+const communityIcon = new L.Icon({
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-violet.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
   iconSize: [25, 41],
   iconAnchor: [12, 41],
@@ -125,6 +136,7 @@ export default function MainMapPage() {
   const [heatmapData, setHeatmapData] = useState<any>(null);
   const [vegetationData, setVegetationData] = useState<any>(null);
   const [shelters, setShelters] = useState<any[]>([]);
+  const [communityPosts, setCommunityPosts] = useState<CommunityPostResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
   const [seasonMode, setSeasonMode] = useState<SeasonMode>('AUTO');
@@ -192,15 +204,33 @@ export default function MainMapPage() {
           }
         };
 
-        const [heatData, vegData, shelterData] = await Promise.all([
+        // 커뮤니티 게시글 로드 (위치 정보가 있는 것만)
+        const loadCommunityPosts = async () => {
+          try {
+            const postsData = await communityAPI.getAllPosts(0, 100);
+            // 위치 정보가 있는 게시글만 필터링
+            const postsWithLocation = postsData.content.filter(
+              (post) => post.locationLat && post.locationLng
+            );
+            console.log(`✓ 커뮤니티 게시글 (위치 포함): ${postsWithLocation.length}개`);
+            return postsWithLocation;
+          } catch (e) {
+            console.log('✗ 커뮤니티 게시글 로딩 실패');
+            return [];
+          }
+        };
+
+        const [heatData, vegData, shelterData, postsData] = await Promise.all([
           tryLayers(heatLayers, 300),
           tryLayers(vegLayers, 500),
           loadShelters(),
+          loadCommunityPosts(),
         ]);
 
         setHeatmapData(heatData);
         setVegetationData(vegData);
         setShelters(shelterData?.features || []);
+        setCommunityPosts(postsData);
 
         if (!heatData && !vegData && !shelterData) {
           setError('데이터를 불러올 수 없습니다.');
@@ -275,6 +305,10 @@ export default function MainMapPage() {
               <span className="text-gray-300">
                 {seasonMode === 'WINTER' ? '주황' : '파란'} 핀: {config.shelterLabel}
               </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <MessageSquare className="text-purple-400" size={18} />
+              <span className="text-gray-300">보라 핀: 커뮤니티 제보</span>
             </div>
           </div>
 
@@ -351,6 +385,44 @@ export default function MainMapPage() {
               </Marker>
             );
           })}
+
+          {/* 커뮤니티 게시글 마커 */}
+          {communityPosts.map((post) => {
+            if (!post.locationLat || !post.locationLng) return null;
+
+            return (
+              <Marker
+                key={`community-${post.id}`}
+                position={[post.locationLat, post.locationLng]}
+                icon={communityIcon}
+              >
+                <Popup>
+                  <div className="font-bold text-purple-600 flex items-center gap-2">
+                    <MessageSquare className="w-4 h-4" />
+                    {post.title}
+                  </div>
+                  <div className="text-xs text-gray-600 mt-2">
+                    <div className="mb-1">
+                      <span className="font-semibold">작성자:</span> {post.authorNickname || post.authorUsername}
+                    </div>
+                    <div className="mb-2 line-clamp-2">{post.content}</div>
+                    {post.locationName && (
+                      <div className="text-green-600 mb-2 flex items-center gap-1">
+                        <MessageSquare className="w-3 h-3" />
+                        {post.locationName}
+                      </div>
+                    )}
+                    <Link
+                      to={`/community/posts/${post.id}`}
+                      className="text-purple-600 hover:text-purple-700 font-semibold underline block mt-2"
+                    >
+                      상세보기 →
+                    </Link>
+                  </div>
+                </Popup>
+              </Marker>
+            );
+          })}
         </MapContainer>
       </div>
 
@@ -359,6 +431,10 @@ export default function MainMapPage() {
         <span>식생 데이터: {vegetationData ? '✓' : '✗'}</span>
         <span>
           {config.shelterEmoji} {config.shelterLabel}: {shelters.length}개
+        </span>
+        <span className="text-purple-400">
+          <MessageSquare className="inline w-3 h-3 mr-1" />
+          커뮤니티 제보: {communityPosts.length}개
         </span>
         <span className={config.color}>
           <SeasonIcon className="inline w-3 h-3 mr-1" />

@@ -1,7 +1,7 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { userAPI } from '../api/user';
-import { Map, Navigation as NavIcon, LogOut, User, Sun, Snowflake, ShieldCheck } from 'lucide-react';
+import { Map, Navigation as NavIcon, LogOut, User, Sun, Snowflake, ShieldCheck, MessageSquare } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import type { SeasonMode } from '../types/user';
 
@@ -45,6 +45,7 @@ export default function Navigation() {
   const navItems = [
     { path: '/', label: '지도', icon: Map },
     { path: '/route-search', label: '경로 탐색', icon: NavIcon },
+    { path: '/community', label: '커뮤니티', icon: MessageSquare },
     { path: '/my-page', label: '마이페이지', icon: User },
   ];
 
