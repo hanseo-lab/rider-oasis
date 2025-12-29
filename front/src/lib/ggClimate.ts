@@ -210,6 +210,81 @@ export async function getDevelopmentRestrictionZones(
 }
 
 // ============================================
+// 쉼터 데이터 (계절별)
+// ============================================
+
+/**
+ * 무더위 쉼터 조회 (여름용)
+ */
+export async function getHeatShelters(
+  maxFeatures: number = 1000
+): Promise<GeoJSONResponse> {
+  return fetchWFS("dsvctm_tmpr_hab_fclt", maxFeatures);
+}
+
+/**
+ * 한파 쉼터 조회 (겨울용)
+ * 주의: 실제 레이어명은 경기기후 API 문서 확인 필요
+ * 현재는 무더위 쉼터와 동일한 데이터 사용 (대부분의 쉼터가 양쪽 모두 제공)
+ */
+export async function getColdShelters(
+  maxFeatures: number = 1000
+): Promise<GeoJSONResponse> {
+  // TODO: 실제 한파 쉼터 레이어명으로 교체
+  // 임시로 무더위 쉼터 데이터 사용
+  return fetchWFS("dsvctm_tmpr_hab_fclt", maxFeatures);
+}
+
+/**
+ * 계절 모드에 따른 쉼터 조회
+ * @param seasonMode 계절 모드 ('SUMMER' | 'WINTER' | 'AUTO')
+ * @param maxFeatures 최대 조회 개수
+ */
+export async function getSheltersBySeasonMode(
+  seasonMode: 'SUMMER' | 'WINTER' | 'AUTO',
+  maxFeatures: number = 1000
+): Promise<GeoJSONResponse> {
+  // AUTO 모드일 경우 현재 월 기준으로 판단
+  let actualMode = seasonMode;
+  if (seasonMode === 'AUTO') {
+    const month = new Date().getMonth() + 1;
+    actualMode = (month >= 6 && month <= 8) ? 'SUMMER' :
+                 (month === 12 || month <= 2) ? 'WINTER' : 'SUMMER';
+  }
+
+  // 계절에 따라 적절한 쉼터 데이터 조회
+  if (actualMode === 'WINTER') {
+    return getColdShelters(maxFeatures);
+  } else {
+    return getHeatShelters(maxFeatures);
+  }
+}
+
+/**
+ * 쉼터 간단 목록 조회 (계절별)
+ */
+export async function getShelterList(
+  seasonMode: 'SUMMER' | 'WINTER' | 'AUTO' = 'AUTO',
+  maxFeatures: number = 1000
+): Promise<Array<{
+  이름: string;
+  시설유형: string;
+  수용인원: number;
+  좌표: number[];
+}>> {
+  const data = await getSheltersBySeasonMode(seasonMode, maxFeatures);
+
+  return data.features.map((f) => ({
+    이름: f.properties.fclt_nm as string || '쉼터',
+    시설유형: f.properties.fclt_se_nm as string || '기타',
+    수용인원: f.properties.actc_ppltn_cnt as number || 0,
+    좌표: f.geometry.type === 'Point'
+      ? f.geometry.coordinates as number[]
+      : getCenterPoint(f.geometry.coordinates),
+  }));
+}
+
+// ============================================
 // 범용 레이어 조회
 // ============================================
 
@@ -291,7 +366,7 @@ export function convertToWGS84(x: number, y: number): [number, number] {
 
 /*
 // 기본 사용
-import { getParks, getCulturalProperties } from './lib/ggClimate'
+import { getParks, getCulturalProperties, getSheltersBySeasonMode } from './lib/ggClimate'
 
 // 공원 100개 가져오기
 const parks = await getParks(100)
@@ -302,6 +377,14 @@ const suwonParks = await getParks(100, "수원")
 
 // 문화재 목록
 const 문화재목록 = await getCulturalPropertyList(50)
+
+// 계절별 쉼터 조회
+const 여름쉼터 = await getSheltersBySeasonMode('SUMMER', 1000)
+const 겨울쉼터 = await getSheltersBySeasonMode('WINTER', 1000)
+const 자동쉼터 = await getSheltersBySeasonMode('AUTO', 1000)
+
+// 쉼터 목록 (간단 버전)
+const shelterList = await getShelterList('SUMMER')
 
 // 아무 레이어나 직접 조회
 const 비오톱 = await getLayer("biotop_type_evl_5grd", 50)

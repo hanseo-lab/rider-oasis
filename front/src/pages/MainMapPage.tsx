@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, GeoJSON, useMap } from 'react-leaflet';
 import { Loader2, ThermometerSun, Trees, Home, Navigation } from 'lucide-react';
-import { getLayer } from '../lib/ggClimate';
+import { getLayer, getSheltersBySeasonMode } from '../lib/ggClimate';
+import { userAPI } from '../api/user';
+import type { SeasonMode } from '../types/user';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Link } from 'react-router-dom';
@@ -114,17 +116,33 @@ export default function MainMapPage() {
   const [shelters, setShelters] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
+  const [seasonMode, setSeasonMode] = useState<SeasonMode>('AUTO'); // ✨ 계절 모드 상태
 
   const center: [number, number] = [37.2636, 127.0286];
 
+  // ✨ 사용자 설정 로드
+  useEffect(() => {
+    async function loadUserSettings() {
+      try {
+        const userInfo = await userAPI.getMyInfo();
+        setSeasonMode(userInfo.seasonMode);
+      } catch (error) {
+        console.error('사용자 설정 로딩 실패:', error);
+        // 에러 발생 시 AUTO 모드 유지
+      }
+    }
+    loadUserSettings();
+  }, []);
+
+  // ✨ 지도 데이터 로드 (seasonMode 의존성 추가)
   useEffect(() => {
     async function fetchData() {
       try {
+        setLoading(true);
         setError('');
 
         const heatLayers = ['bldg_gas_cbn_ehqty', 'bldg_hetng_cbn_ehqty', 'TM_BLDG_INFO'];
         const vegLayers = ['park', 'biotop_type_evl_5grd', 'tree_cvg', 'green_area'];
-        const shelterLayers = ['dsvctm_tmpr_hab_fclt'];
 
         const tryLayers = async (layers: string[], maxFeatures = 200) => {
           for (const layer of layers) {
@@ -141,10 +159,22 @@ export default function MainMapPage() {
           return null;
         };
 
+        // ✨ 계절 모드에 따라 쉼터 데이터 조회
+        const loadShelters = async () => {
+          try {
+            const shelterData = await getSheltersBySeasonMode(seasonMode, 1000);
+            console.log(`✓ 쉼터 (${seasonMode} 모드): ${shelterData.features.length}개 항목`);
+            return shelterData;
+          } catch (e) {
+            console.log('✗ 쉼터 데이터 로딩 실패');
+            return null;
+          }
+        };
+
         const [heatData, vegData, shelterData] = await Promise.all([
           tryLayers(heatLayers, 300),
           tryLayers(vegLayers, 500),
-          tryLayers(shelterLayers, 1000),
+          loadShelters(), // ✨ 계절별 쉼터 로드
         ]);
 
         setHeatmapData(heatData);
@@ -162,7 +192,7 @@ export default function MainMapPage() {
       }
     }
     fetchData();
-  }, []);
+  }, [seasonMode]); // ✨ seasonMode 변경 시 데이터 재로드
 
   if (loading) {
     return (
@@ -243,14 +273,18 @@ export default function MainMapPage() {
             }
 
             const props = shelter.properties || {};
-            const name = props.fclt_nm || props.name || '무더위 쉼터';
+            // ✨ 계절 모드에 따라 쉼터 이름 변경
+            const defaultName = seasonMode === 'WINTER' ? '한파 쉼터' : '무더위 쉼터';
+            const name = props.fclt_nm || props.name || defaultName;
             const address = props.lctn_lotno_addr || '';
             const capacity = props.actc_ppltn_cnt || '';
 
             return (
               <Marker key={idx} position={[lat, lng]} icon={shelterIcon}>
                 <Popup>
-                  <div className="font-bold text-blue-600">{name}</div>
+                  <div className="font-bold text-blue-600">
+                    {seasonMode === 'WINTER' ? '❄️' : '☀️'} {name}
+                  </div>
                   <div className="text-xs text-gray-600 mt-1">
                     {props.fclt_se_nm && <div>유형: {props.fclt_se_nm}</div>}
                     {capacity && <div>수용: {capacity}명</div>}
@@ -266,7 +300,12 @@ export default function MainMapPage() {
       <div className="bg-gray-800 text-gray-300 px-4 py-2 text-xs flex justify-center gap-6">
         <span>폭염 데이터: {heatmapData ? '✓' : '✗'}</span>
         <span>식생 데이터: {vegetationData ? '✓' : '✗'}</span>
-        <span>대피시설: {shelters.length}개</span>
+        <span>
+          {seasonMode === 'WINTER' ? '❄️ 한파' : seasonMode === 'SUMMER' ? '☀️ 무더위' : '🔄 자동'} 쉼터: {shelters.length}개
+        </span>
+        <span className="text-blue-400">
+          계절 모드: {seasonMode === 'AUTO' ? '자동' : seasonMode === 'SUMMER' ? '여름' : '겨울'}
+        </span>
       </div>
     </div>
   );

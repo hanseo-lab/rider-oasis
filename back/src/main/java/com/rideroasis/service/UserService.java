@@ -87,7 +87,9 @@ public class UserService {
             .sum();
 
         // Gamification 계산
-        Double heatAvoided = totalDistance * avgHeatExposure;  // 간단한 계산
+        // heatAvoided: 폭염 회피한 거리 = 전체 거리 * (1 - 폭염 노출률)
+        // 예: 100km 주행, 평균 폭염 노출 30% → 70km는 폭염을 피한 거리
+        Double heatAvoided = totalDistance * (1.0 - avgHeatExposure);
         Integer sheltersUsed = routes.stream()
             .mapToInt(Route::getShelterCount)
             .sum();
