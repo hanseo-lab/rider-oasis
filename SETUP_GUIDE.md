@@ -13,7 +13,7 @@ Java 17은 설치되어 있지만, **Gradle/Maven**이 설치되지 않아 자�
 
 2. **프로젝트 열기**
    - IntelliJ 실행
-   - "Open" → `C:\riderOasis` 선택
+   - "Open" → `[프로젝트 설치 경로]/rider-oasis` 선택
    - Gradle 프로젝트로 자동 인식됨
 
 3. **의존성 다운로드**
@@ -39,7 +39,7 @@ Java 17은 설치되어 있지만, **Gradle/Maven**이 설치되지 않아 자�
 
 3. **프로젝트 실행**
    ```bash
-   cd C:\riderOasis
+   cd rider-oasis
    gradle bootRun
    ```
 
@@ -56,7 +56,7 @@ Java 17은 설치되어 있지만, **Gradle/Maven**이 설치되지 않아 자�
 
 3. **프로젝트 실행**
    ```bash
-   cd C:\riderOasis
+   cd rider-oasis
    mvn spring-boot:run
    ```
 
@@ -97,7 +97,7 @@ curl http://localhost:8080/api/auth/health
 백엔드 서버가 실행되면, 새 터미널에서:
 
 ```bash
-cd C:\riderOasis
+cd rider-oasis
 npm run dev
 ```
 
@@ -175,7 +175,7 @@ application.yml                       ✓ Spring Boot 설정
 **가장 빠른 방법**: IntelliJ IDEA Community Edition 설치
 
 1. IntelliJ 다운로드: https://www.jetbrains.com/idea/download/
-2. 설치 후 `C:\riderOasis` 열기
+2. 설치 후 `[프로젝트 설치 경로]/rider-oasis` 열기
 3. Gradle 프로젝트 자동 인식
 4. `RiderOasisApplication.java` 실행
 5. 새 터미널에서 `npm run dev`

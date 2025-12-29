@@ -1,6 +1,6 @@
 # Rider Oasis Backend API
 
-**경기 그늘 로드** Spring Boot 백엔드 서버
+**경기 안심 로드** Spring Boot 백엔드 서버
 
 ## 기술 스택
 

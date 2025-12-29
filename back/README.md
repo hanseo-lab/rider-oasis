@@ -136,8 +136,8 @@ server:
 ## 개발 시 참고사항
 
 ### H2 Console 접속
-- URL: http://localhost:8080/h2-console
-- JDBC URL: `jdbc:h2:mem:rideroasisdb`
+- URL: http://localhost:8080/api/h2-console
+- JDBC URL: `jdbc:h2:mem:rideroasis`
 - Username: `sa`
 - Password: (비어있음)
 
