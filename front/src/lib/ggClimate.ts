@@ -210,8 +210,51 @@ export async function getDevelopmentRestrictionZones(
 }
 
 // ============================================
-// 쉼터 데이터 (계절별)
+// 쉼터 데이터 (계절별) ✨
 // ============================================
+
+/**
+ * 쉼터 데이터 조회 (계절별 필터링)
+ * @param maxFeatures 최대 조회 개수
+ * @param seasonMode 계절 모드 ('SUMMER' | 'WINTER' | 'AUTO')
+ */
+export async function getShelters(
+  maxFeatures: number = 1000,
+  seasonMode: 'SUMMER' | 'WINTER' | 'AUTO' = 'AUTO'
+): Promise<GeoJSONResponse> {
+  // AUTO 모드일 경우 현재 월 기준으로 판단
+  let actualMode = seasonMode;
+  if (seasonMode === 'AUTO') {
+    const month = new Date().getMonth() + 1;
+    // 11월~3월: 겨울, 그 외: 여름
+    actualMode = (month >= 11 || month <= 3) ? 'WINTER' : 'SUMMER';
+  }
+
+  // 기본 쉼터 데이터 조회
+  const data = await fetchWFS("dsvctm_tmpr_hab_fclt", maxFeatures);
+
+  // 겨울 모드: 실내 시설만 필터링
+  if (actualMode === 'WINTER') {
+    const winterKeywords = ['마을회관', '경로당', '복지관', '주민센터', '행정복지센터'];
+
+    data.features = data.features.filter((f) => {
+      const facilityType = f.properties.fclt_se_nm as string || '';
+      const facilityName = f.properties.fclt_nm as string || '';
+
+      // 시설 구분이나 시설명에 겨울 쉼터 키워드가 포함되어 있는지 확인
+      return winterKeywords.some(keyword =>
+        facilityType.includes(keyword) || facilityName.includes(keyword)
+      );
+    });
+
+    data.numberReturned = data.features.length;
+    console.log(`❄️ 겨울 쉼터 필터링: ${data.features.length}개 (실내 시설만)`);
+  } else {
+    console.log(`☀️ 여름 쉼터: ${data.features.length}개 (모든 쉼터)`);
+  }
+
+  return data;
+}
 
 /**
  * 무더위 쉼터 조회 (여름용)
@@ -219,45 +262,26 @@ export async function getDevelopmentRestrictionZones(
 export async function getHeatShelters(
   maxFeatures: number = 1000
 ): Promise<GeoJSONResponse> {
-  return fetchWFS("dsvctm_tmpr_hab_fclt", maxFeatures);
+  return getShelters(maxFeatures, 'SUMMER');
 }
 
 /**
  * 한파 쉼터 조회 (겨울용)
- * 주의: 실제 레이어명은 경기기후 API 문서 확인 필요
- * 현재는 무더위 쉼터와 동일한 데이터 사용 (대부분의 쉼터가 양쪽 모두 제공)
  */
 export async function getColdShelters(
   maxFeatures: number = 1000
 ): Promise<GeoJSONResponse> {
-  // TODO: 실제 한파 쉼터 레이어명으로 교체
-  // 임시로 무더위 쉼터 데이터 사용
-  return fetchWFS("dsvctm_tmpr_hab_fclt", maxFeatures);
+  return getShelters(maxFeatures, 'WINTER');
 }
 
 /**
- * 계절 모드에 따른 쉼터 조회
- * @param seasonMode 계절 모드 ('SUMMER' | 'WINTER' | 'AUTO')
- * @param maxFeatures 최대 조회 개수
+ * 계절 모드에 따른 쉼터 조회 (레거시 호환)
  */
 export async function getSheltersBySeasonMode(
   seasonMode: 'SUMMER' | 'WINTER' | 'AUTO',
   maxFeatures: number = 1000
 ): Promise<GeoJSONResponse> {
-  // AUTO 모드일 경우 현재 월 기준으로 판단
-  let actualMode = seasonMode;
-  if (seasonMode === 'AUTO') {
-    const month = new Date().getMonth() + 1;
-    actualMode = (month >= 6 && month <= 8) ? 'SUMMER' :
-                 (month === 12 || month <= 2) ? 'WINTER' : 'SUMMER';
-  }
-
-  // 계절에 따라 적절한 쉼터 데이터 조회
-  if (actualMode === 'WINTER') {
-    return getColdShelters(maxFeatures);
-  } else {
-    return getHeatShelters(maxFeatures);
-  }
+  return getShelters(maxFeatures, seasonMode);
 }
 
 /**
@@ -272,7 +296,7 @@ export async function getShelterList(
   수용인원: number;
   좌표: number[];
 }>> {
-  const data = await getSheltersBySeasonMode(seasonMode, maxFeatures);
+  const data = await getShelters(maxFeatures, seasonMode);
 
   return data.features.map((f) => ({
     이름: f.properties.fclt_nm as string || '쉼터',
@@ -366,7 +390,7 @@ export function convertToWGS84(x: number, y: number): [number, number] {
 
 /*
 // 기본 사용
-import { getParks, getCulturalProperties, getSheltersBySeasonMode } from './lib/ggClimate'
+import { getParks, getCulturalProperties, getShelters } from './lib/ggClimate'
 
 // 공원 100개 가져오기
 const parks = await getParks(100)
@@ -379,9 +403,9 @@ const suwonParks = await getParks(100, "수원")
 const 문화재목록 = await getCulturalPropertyList(50)
 
 // 계절별 쉼터 조회
-const 여름쉼터 = await getSheltersBySeasonMode('SUMMER', 1000)
-const 겨울쉼터 = await getSheltersBySeasonMode('WINTER', 1000)
-const 자동쉼터 = await getSheltersBySeasonMode('AUTO', 1000)
+const 여름쉼터 = await getShelters(1000, 'SUMMER')
+const 겨울쉼터 = await getShelters(1000, 'WINTER')  // 실내 시설만
+const 자동쉼터 = await getShelters(1000, 'AUTO')
 
 // 쉼터 목록 (간단 버전)
 const shelterList = await getShelterList('SUMMER')

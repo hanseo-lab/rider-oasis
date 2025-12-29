@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, GeoJSON, useMap } from 'react-leaflet';
-import { Loader2, ThermometerSun, Trees, Home, Navigation } from 'lucide-react';
-import { getLayer, getSheltersBySeasonMode } from '../lib/ggClimate';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { Loader2, ThermometerSun, Trees, Home, Navigation, Snowflake, AlertTriangle } from 'lucide-react';
+import { getLayer, getShelters } from '../lib/ggClimate';
 import { userAPI } from '../api/user';
 import type { SeasonMode } from '../types/user';
 import L from 'leaflet';
@@ -17,8 +17,19 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-const shelterIcon = new L.Icon({
+// 여름 쉼터: 파란색 마커
+const summerShelterIcon = new L.Icon({
   iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+});
+
+// 겨울 쉼터: 주황색 마커
+const winterShelterIcon = new L.Icon({
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-orange.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
   iconSize: [25, 41],
   iconAnchor: [12, 41],
@@ -116,25 +127,35 @@ export default function MainMapPage() {
   const [shelters, setShelters] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
-  const [seasonMode, setSeasonMode] = useState<SeasonMode>('AUTO'); // ✨ 계절 모드 상태
+  const [seasonMode, setSeasonMode] = useState<SeasonMode>('AUTO');
 
   const center: [number, number] = [37.2636, 127.0286];
 
-  // ✨ 사용자 설정 로드
+  // 사용자 설정 로드
   useEffect(() => {
     async function loadUserSettings() {
       try {
         const userInfo = await userAPI.getMyInfo();
-        setSeasonMode(userInfo.seasonMode);
+        let actualMode = userInfo.seasonMode;
+
+        // AUTO 모드인 경우 현재 월 기준으로 판단
+        if (actualMode === 'AUTO') {
+          const month = new Date().getMonth() + 1;
+          actualMode = (month >= 11 || month <= 3) ? 'WINTER' : 'SUMMER';
+        }
+
+        setSeasonMode(actualMode as SeasonMode);
       } catch (error) {
         console.error('사용자 설정 로딩 실패:', error);
-        // 에러 발생 시 AUTO 모드 유지
+        // 에러 발생 시 현재 월 기준으로 자동 판단
+        const month = new Date().getMonth() + 1;
+        setSeasonMode((month >= 11 || month <= 3) ? 'WINTER' : 'SUMMER');
       }
     }
     loadUserSettings();
   }, []);
 
-  // ✨ 지도 데이터 로드 (seasonMode 의존성 추가)
+  // 지도 데이터 로드 (seasonMode 의존성)
   useEffect(() => {
     async function fetchData() {
       try {
@@ -159,10 +180,10 @@ export default function MainMapPage() {
           return null;
         };
 
-        // ✨ 계절 모드에 따라 쉼터 데이터 조회
+        // 계절 모드에 따라 쉼터 데이터 조회
         const loadShelters = async () => {
           try {
-            const shelterData = await getSheltersBySeasonMode(seasonMode, 1000);
+            const shelterData = await getShelters(1000, seasonMode);
             console.log(`✓ 쉼터 (${seasonMode} 모드): ${shelterData.features.length}개 항목`);
             return shelterData;
           } catch (e) {
@@ -174,7 +195,7 @@ export default function MainMapPage() {
         const [heatData, vegData, shelterData] = await Promise.all([
           tryLayers(heatLayers, 300),
           tryLayers(vegLayers, 500),
-          loadShelters(), // ✨ 계절별 쉼터 로드
+          loadShelters(),
         ]);
 
         setHeatmapData(heatData);
@@ -192,7 +213,7 @@ export default function MainMapPage() {
       }
     }
     fetchData();
-  }, [seasonMode]); // ✨ seasonMode 변경 시 데이터 재로드
+  }, [seasonMode]); // seasonMode 변경 시 데이터 재로드
 
   if (loading) {
     return (
@@ -203,29 +224,67 @@ export default function MainMapPage() {
     );
   }
 
+  // 계절별 마커 아이콘 선택
+  const shelterIcon = seasonMode === 'WINTER' ? winterShelterIcon : summerShelterIcon;
+
+  // 계절별 UI 설정
+  const seasonConfig = {
+    SUMMER: {
+      icon: ThermometerSun,
+      color: 'text-orange-400',
+      bgColor: 'from-orange-900/50 to-red-900/50',
+      borderColor: 'border-orange-500/30',
+      heatLabel: '폭염 지역',
+      vegLabel: '시원한 그늘',
+      shelterLabel: '무더위 쉼터',
+      shelterEmoji: '💧',
+      shelterColor: 'text-blue-400',
+    },
+    WINTER: {
+      icon: Snowflake,
+      color: 'text-blue-300',
+      bgColor: 'from-blue-900/50 to-cyan-900/50',
+      borderColor: 'border-blue-500/30',
+      heatLabel: '급경사/위험',
+      vegLabel: '그늘(결빙주의)',
+      shelterLabel: '한파 쉼터',
+      shelterEmoji: '♨️',
+      shelterColor: 'text-orange-400',
+    },
+  };
+
+  const config = seasonConfig[seasonMode as 'SUMMER' | 'WINTER'] || seasonConfig.SUMMER;
+  const SeasonIcon = config.icon;
+
   return (
     <div className="h-screen flex flex-col bg-gray-900">
-      {/* 인포 배너 */}
-      <div className="bg-gradient-to-r from-green-900/50 to-blue-900/50 border-b border-green-500/30 p-4">
+      {/* 상단 배너 - 계절별 안내 */}
+      <div className={`bg-gradient-to-r ${config.bgColor} border-b ${config.borderColor} p-4`}>
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-6 text-sm">
             <div className="flex items-center gap-2">
-              <ThermometerSun className="text-red-400" size={18} />
-              <span className="text-gray-300">붉은색: 폭염 지역</span>
+              <AlertTriangle className="text-red-400" size={18} />
+              <span className="text-gray-300">붉은색: {config.heatLabel}</span>
             </div>
             <div className="flex items-center gap-2">
-              <Trees className="text-green-400" size={18} />
-              <span className="text-gray-300">초록색: 나무 있는 곳</span>
+              <Trees className={seasonMode === 'WINTER' ? 'text-blue-300' : 'text-green-400'} size={18} />
+              <span className="text-gray-300">초록색: {config.vegLabel}</span>
             </div>
             <div className="flex items-center gap-2">
-              <Home className="text-blue-400" size={18} />
-              <span className="text-gray-300">파란 핀: 대피시설</span>
+              <Home className={config.shelterColor} size={18} />
+              <span className="text-gray-300">
+                {seasonMode === 'WINTER' ? '주황' : '파란'} 핀: {config.shelterLabel}
+              </span>
             </div>
           </div>
 
           <Link
             to="/route-search"
-            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-blue-500 text-white rounded-lg hover:from-green-600 hover:to-blue-600 transition-all font-semibold"
+            className={`flex items-center gap-2 px-4 py-2 bg-gradient-to-r ${
+              seasonMode === 'WINTER'
+                ? 'from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600'
+                : 'from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600'
+            } text-white rounded-lg transition-all font-semibold`}
           >
             <Navigation className="w-4 h-4" />
             경로 탐색 시작
@@ -273,17 +332,15 @@ export default function MainMapPage() {
             }
 
             const props = shelter.properties || {};
-            // ✨ 계절 모드에 따라 쉼터 이름 변경
-            const defaultName = seasonMode === 'WINTER' ? '한파 쉼터' : '무더위 쉼터';
-            const name = props.fclt_nm || props.name || defaultName;
+            const name = props.fclt_nm || props.name || config.shelterLabel;
             const address = props.lctn_lotno_addr || '';
             const capacity = props.actc_ppltn_cnt || '';
 
             return (
               <Marker key={idx} position={[lat, lng]} icon={shelterIcon}>
                 <Popup>
-                  <div className="font-bold text-blue-600">
-                    {seasonMode === 'WINTER' ? '❄️' : '☀️'} {name}
+                  <div className="font-bold" style={{ color: seasonMode === 'WINTER' ? '#fb923c' : '#3b82f6' }}>
+                    {config.shelterEmoji} {name}
                   </div>
                   <div className="text-xs text-gray-600 mt-1">
                     {props.fclt_se_nm && <div>유형: {props.fclt_se_nm}</div>}
@@ -301,10 +358,11 @@ export default function MainMapPage() {
         <span>폭염 데이터: {heatmapData ? '✓' : '✗'}</span>
         <span>식생 데이터: {vegetationData ? '✓' : '✗'}</span>
         <span>
-          {seasonMode === 'WINTER' ? '❄️ 한파' : seasonMode === 'SUMMER' ? '☀️ 무더위' : '🔄 자동'} 쉼터: {shelters.length}개
+          {config.shelterEmoji} {config.shelterLabel}: {shelters.length}개
         </span>
-        <span className="text-blue-400">
-          계절 모드: {seasonMode === 'AUTO' ? '자동' : seasonMode === 'SUMMER' ? '여름' : '겨울'}
+        <span className={config.color}>
+          <SeasonIcon className="inline w-3 h-3 mr-1" />
+          계절 모드: {seasonMode === 'SUMMER' ? '여름' : '겨울'}
         </span>
       </div>
     </div>
