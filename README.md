@@ -97,6 +97,23 @@
 
 ## 7. 📦 설치 및 실행 (Getting Started)
 
+### 프로젝트 구조 (NEW ✨ 분리된 구조)
+이 프로젝트는 **백엔드(back/)와 프론트엔드(front/)가 분리**되어 있습니다.
+
+```
+rider-oasis/
+├── back/              # 백엔드 (Spring Boot)
+│   ├── src/
+│   ├── build.gradle
+│   ├── gradlew
+│   └── README.md     # 백엔드 상세 문서
+├── front/             # 프론트엔드 (React + TypeScript)
+│   ├── src/
+│   ├── package.json
+│   └── README.md     # 프론트엔드 상세 문서
+└── README.md         # 이 파일
+```
+
 ### 사전 요구사항
 * Java 17 이상
 * Node.js 18 이상
@@ -110,6 +127,9 @@ cd rider-oasis
 
 ### 2️⃣ 백엔드 서버 설정 및 실행 (NEW ✨)
 ```bash
+# 백엔드 폴더로 이동
+cd back
+
 # Gradle Wrapper를 사용하여 빌드 (전역 Gradle 불필요)
 ./gradlew build          # Linux/Mac
 .\gradlew.bat build      # Windows
@@ -121,10 +141,15 @@ cd rider-oasis
 
 **백엔드 서버 주소:**
 - API: http://localhost:8080/api
-- H2 Console: http://localhost:8080/api/h2-console
+- H2 Console: http://localhost:8080/h2-console
+
+**상세 문서:** [back/README.md](back/README.md)
 
 ### 3️⃣ 프론트엔드 설정 및 실행
 ```bash
+# 프론트엔드 폴더로 이동
+cd front
+
 # 의존성 설치
 npm install
 
@@ -135,68 +160,96 @@ npm run dev
 **프론트엔드 서버 주소:**
 - 웹 애플리케이션: http://localhost:5173
 
+**상세 문서:** [front/README.md](front/README.md)
+
 ### 배포
 ```bash
 # 프론트엔드 빌드
+cd front
 npm run build
 
 # 백엔드 JAR 생성
-./gradlew build
+cd ../back
+./gradlew build        # Linux/Mac
+.\gradlew.bat build    # Windows
 ```
 
-## 8. 📁 프로젝트 구조
+## 8. 📁 프로젝트 구조 (분리된 구조 ✨)
 
 ```
 rider-oasis/
-├── src/main/java/com/rideroasis/    # 백엔드 (NEW ✨)
-│   ├── controller/                  # REST API 컨트롤러
-│   │   ├── AuthController.java      # 인증 API
-│   │   ├── RouteController.java     # 경로 탐색 API
-│   │   └── CommunityController.java # 커뮤니티 API
-│   ├── service/                     # 비즈니스 로직
-│   │   ├── AuthService.java
-│   │   └── RouteService.java
-│   ├── repository/                  # 데이터 접근 계층
-│   ├── entity/                      # JPA 엔티티
-│   │   ├── User.java
-│   │   ├── Route.java
-│   │   └── CommunityPost.java
-│   ├── security/                    # JWT 인증/인가
-│   │   ├── JwtTokenProvider.java
-│   │   └── JwtAuthenticationFilter.java
-│   ├── algorithm/                   # A* 알고리즘
-│   │   └── AStarPathfinder.java
-│   └── config/                      # 설정
-│       ├── SecurityConfig.java
-│       └── CorsConfig.java
-├── src/main/resources/
-│   └── application.yml              # 애플리케이션 설정
-├── src/ (frontend)
-│   ├── api/                         # API 클라이언트 (NEW ✨)
-│   │   ├── axios.ts                 # Axios 설정 (JWT 자동 주입)
-│   │   ├── auth.ts                  # 인증 API
-│   │   └── routes.ts                # 경로 API
-│   ├── components/                  # React 컴포넌트 (NEW ✨)
-│   │   ├── Navigation.tsx           # 네비게이션 바
-│   │   ├── RouteComparison.tsx      # 경로 비교 UI
-│   │   └── RouteMap.tsx             # 경로 지도
-│   ├── pages/                       # 페이지 (NEW ✨)
-│   │   ├── LoginPage.tsx            # 로그인
-│   │   ├── SignupPage.tsx           # 회원가입
-│   │   ├── RouteSearchPage.tsx      # 경로 탐색
-│   │   └── MainMapPage.tsx          # 메인 지도
-│   ├── store/                       # 상태 관리 (NEW ✨)
-│   │   └── authStore.ts             # Zustand 인증 상태
-│   ├── types/                       # TypeScript 타입 (NEW ✨)
-│   │   └── route.ts
-│   ├── lib/
-│   │   └── ggClimate.ts             # 경기기후 API 헬퍼
-│   ├── App.tsx                      # 라우터 설정
-│   ├── index.css                    # Tailwind
-│   └── main.tsx                     # 진입점
-├── build.gradle                     # Gradle 설정 (NEW ✨)
-├── package.json
-└── README.md
+├── back/                            # 백엔드 (Spring Boot)
+│   ├── src/main/java/com/rideroasis/
+│   │   ├── controller/              # REST API 컨트롤러
+│   │   │   ├── AuthController.java
+│   │   │   ├── RouteController.java
+│   │   │   ├── UserController.java
+│   │   │   └── CommunityController.java
+│   │   ├── service/                 # 비즈니스 로직
+│   │   │   ├── AuthService.java
+│   │   │   ├── RouteService.java
+│   │   │   ├── UserService.java
+│   │   │   └── ClimateAPIService.java
+│   │   ├── repository/              # 데이터 접근 계층
+│   │   │   ├── UserRepository.java
+│   │   │   ├── RouteRepository.java
+│   │   │   └── CommunityPostRepository.java
+│   │   ├── entity/                  # JPA 엔티티
+│   │   │   ├── User.java            # SeasonMode enum 포함
+│   │   │   ├── Route.java
+│   │   │   └── CommunityPost.java
+│   │   ├── dto/                     # 데이터 전송 객체
+│   │   │   ├── request/
+│   │   │   └── response/
+│   │   ├── security/                # JWT 인증/인가
+│   │   │   ├── JwtTokenProvider.java
+│   │   │   └── JwtAuthenticationFilter.java
+│   │   ├── algorithm/               # A* 알고리즘
+│   │   │   └── AStarPathfinder.java # 계절별 가중치 적용
+│   │   └── config/                  # 설정
+│   │       ├── SecurityConfig.java
+│   │       └── CorsConfig.java
+│   ├── src/main/resources/
+│   │   └── application.yml          # 애플리케이션 설정
+│   ├── build.gradle                 # Gradle 설정
+│   ├── gradlew / gradlew.bat        # Gradle Wrapper
+│   └── README.md                    # 백엔드 상세 문서
+│
+├── front/                           # 프론트엔드 (React + TypeScript)
+│   ├── src/
+│   │   ├── api/                     # API 클라이언트
+│   │   │   ├── axios.ts             # JWT 자동 주입
+│   │   │   ├── auth.ts
+│   │   │   ├── routes.ts
+│   │   │   └── user.ts
+│   │   ├── types/                   # TypeScript 타입
+│   │   │   ├── route.ts
+│   │   │   └── user.ts              # SeasonMode 타입
+│   │   ├── pages/                   # 페이지 컴포넌트
+│   │   │   ├── LoginPage.tsx
+│   │   │   ├── SignupPage.tsx
+│   │   │   ├── MainMapPage.tsx
+│   │   │   ├── RouteSearchPage.tsx
+│   │   │   └── MyPage.tsx           # 마이페이지 (NEW)
+│   │   ├── components/              # 재사용 컴포넌트
+│   │   │   ├── Navigation.tsx       # 계절 모드 토글 (NEW)
+│   │   │   ├── RouteComparison.tsx
+│   │   │   └── RouteMap.tsx
+│   │   ├── store/                   # Zustand 상태 관리
+│   │   │   └── authStore.ts
+│   │   ├── lib/
+│   │   │   └── ggClimate.ts         # 경기기후 API 헬퍼
+│   │   ├── App.tsx                  # 라우터 설정
+│   │   ├── main.tsx
+│   │   └── index.css                # Tailwind CSS
+│   ├── index.html
+│   ├── package.json
+│   ├── vite.config.ts
+│   ├── tsconfig.json
+│   └── README.md                    # 프론트엔드 상세 문서
+│
+├── STRUCTURE.md                     # 전체 구조 상세 문서
+└── README.md                        # 이 파일
 ```
 
 ## 9. 🎯 새로운 핵심 기능 (NEW ✨)
