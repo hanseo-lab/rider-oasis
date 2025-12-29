@@ -1,0 +1,10 @@
+{
+  "routeName": "수원역 -> 성남시청 (그늘 경로)",
+  "startLat": 37.2660,
+  "startLng": 127.0010,
+  "startAddress": "수원역",
+  "endLat": 37.4201,
+  "endLng": 127.1262,
+  "endAddress": "성남시청",
+  "routeType": "SHADE_OPTIMIZED"
+}

@@ -71,42 +71,224 @@
 3.  **확장성:** 향후 내비게이션 API와 연동 시 '그늘 경로 안내' 서비스로 발전 가능
 
 ## 6. 🚀 기술 스택 (Tech Stack)
-* **Frontend:** React 19 + TypeScript
+
+### Backend (NEW ✨)
+* **Framework:** Spring Boot 3.2.1
+* **Language:** Java 17
+* **Database:** H2 (개발), Oracle/MySQL (운영)
+* **Security:** Spring Security + JWT (HS512)
+* **ORM:** JPA/Hibernate
+* **Build:** Gradle 8.5 (Wrapper 포함)
+
+### Frontend
+* **Framework:** React 19 + TypeScript
 * **지도 라이브러리:** Leaflet + React Leaflet
+* **상태 관리:** Zustand
+* **라우팅:** React Router DOM
+* **HTTP Client:** Axios (JWT 자동 주입)
 * **스타일링:** Tailwind CSS
-* **빌드:** Vite
+* **빌드:** Vite 7.2.1
 * **데이터 소스:** 경기기후플랫폼 API (Climate.gg)
+
+### 알고리즘 (NEW ✨)
+* **경로 탐색:** A* (A-Star) Pathfinding Algorithm
+* **비용 함수:** 거리 + 그늘 가중치 + 폭염 노출도
+* **최적화:** 8방향 이동, Haversine 거리 계산
 
 ## 7. 📦 설치 및 실행 (Getting Started)
 
-### 설치
+### 사전 요구사항
+* Java 17 이상
+* Node.js 18 이상
+* Git
+
+### 1️⃣ 저장소 클론
 ```bash
-npm install
+git clone https://github.com/hanseo-lab/rider-oasis.git
+cd rider-oasis
 ```
 
-### 개발 서버 실행
+### 2️⃣ 백엔드 서버 설정 및 실행 (NEW ✨)
 ```bash
+# Gradle Wrapper를 사용하여 빌드 (전역 Gradle 불필요)
+./gradlew build          # Linux/Mac
+.\gradlew.bat build      # Windows
+
+# 서버 실행
+./gradlew bootRun        # Linux/Mac
+.\gradlew.bat bootRun    # Windows
+```
+
+**백엔드 서버 주소:**
+- API: http://localhost:8080/api
+- H2 Console: http://localhost:8080/api/h2-console
+
+### 3️⃣ 프론트엔드 설정 및 실행
+```bash
+# 의존성 설치
+npm install
+
+# 개발 서버 실행
 npm run dev
 ```
 
-브라우저에서 `https://rider-oasis.vercel.app/` (또는 표시된 포트)로 접속
+**프론트엔드 서버 주소:**
+- 웹 애플리케이션: http://localhost:5173
 
 ### 배포
 ```bash
+# 프론트엔드 빌드
 npm run build
+
+# 백엔드 JAR 생성
+./gradlew build
 ```
 
 ## 8. 📁 프로젝트 구조
+
 ```
-src/
-├── App.tsx              # 메인 지도 컴포넌트
-├── lib/
-│   └── ggClimate.ts     # 경기기후 API 헬퍼 함수
-├── index.css            # Tailwind 설정
-└── main.tsx             # 앱 진입점
+rider-oasis/
+├── src/main/java/com/rideroasis/    # 백엔드 (NEW ✨)
+│   ├── controller/                  # REST API 컨트롤러
+│   │   ├── AuthController.java      # 인증 API
+│   │   ├── RouteController.java     # 경로 탐색 API
+│   │   └── CommunityController.java # 커뮤니티 API
+│   ├── service/                     # 비즈니스 로직
+│   │   ├── AuthService.java
+│   │   └── RouteService.java
+│   ├── repository/                  # 데이터 접근 계층
+│   ├── entity/                      # JPA 엔티티
+│   │   ├── User.java
+│   │   ├── Route.java
+│   │   └── CommunityPost.java
+│   ├── security/                    # JWT 인증/인가
+│   │   ├── JwtTokenProvider.java
+│   │   └── JwtAuthenticationFilter.java
+│   ├── algorithm/                   # A* 알고리즘
+│   │   └── AStarPathfinder.java
+│   └── config/                      # 설정
+│       ├── SecurityConfig.java
+│       └── CorsConfig.java
+├── src/main/resources/
+│   └── application.yml              # 애플리케이션 설정
+├── src/ (frontend)
+│   ├── api/                         # API 클라이언트 (NEW ✨)
+│   │   ├── axios.ts                 # Axios 설정 (JWT 자동 주입)
+│   │   ├── auth.ts                  # 인증 API
+│   │   └── routes.ts                # 경로 API
+│   ├── components/                  # React 컴포넌트 (NEW ✨)
+│   │   ├── Navigation.tsx           # 네비게이션 바
+│   │   ├── RouteComparison.tsx      # 경로 비교 UI
+│   │   └── RouteMap.tsx             # 경로 지도
+│   ├── pages/                       # 페이지 (NEW ✨)
+│   │   ├── LoginPage.tsx            # 로그인
+│   │   ├── SignupPage.tsx           # 회원가입
+│   │   ├── RouteSearchPage.tsx      # 경로 탐색
+│   │   └── MainMapPage.tsx          # 메인 지도
+│   ├── store/                       # 상태 관리 (NEW ✨)
+│   │   └── authStore.ts             # Zustand 인증 상태
+│   ├── types/                       # TypeScript 타입 (NEW ✨)
+│   │   └── route.ts
+│   ├── lib/
+│   │   └── ggClimate.ts             # 경기기후 API 헬퍼
+│   ├── App.tsx                      # 라우터 설정
+│   ├── index.css                    # Tailwind
+│   └── main.tsx                     # 진입점
+├── build.gradle                     # Gradle 설정 (NEW ✨)
+├── package.json
+└── README.md
 ```
 
-## 9. 🗺️ 사용된 API 레이어
+## 9. 🎯 새로운 핵심 기능 (NEW ✨)
+
+### 1️⃣ 회원가입 및 로그인
+- JWT 기반 인증 시스템
+- BCrypt 비밀번호 암호화
+- 자동 토큰 갱신
+
+### 2️⃣ 스마트 경로 탐색
+**"최단 경로 vs 그늘 경로"** 비교 기능
+
+#### 사용 방법:
+1. 경로 탐색 페이지에서 출발지/도착지 입력
+2. Nominatim API로 주소 → 좌표 변환
+3. A* 알고리즘으로 두 가지 경로 계산:
+   - **최단 경로**: 가장 빠른 경로
+   - **그늘 경로**: 폭염 노출 최소화 경로
+4. 실시간 비교 통계 제공:
+   - 거리 차이
+   - 시간 차이
+   - 그늘 비율 증가율
+   - 폭염 노출 감소율
+
+#### 경로 통계 정보:
+- 총 거리 (km)
+- 예상 시간 (분)
+- 그늘 비율 (0-100%)
+- 폭염 노출도 (0-100%)
+- 대피시설 개수
+
+### 3️⃣ 경로 시각화
+- Leaflet 지도에 경로 표시
+- 출발지(🟢), 도착지(🔴) 마커
+- 경로 유형별 색상 구분:
+  - 최단 경로: 파란색
+  - 그늘 경로: 초록색
+- GeoJSON 기반 폴리라인 렌더링
+
+### 4️⃣ 경로 저장 및 관리
+- 즐겨찾는 경로 저장
+- 경로 히스토리 조회
+- 경로 삭제 및 즐겨찾기
+
+## 10. 📡 REST API 엔드포인트 (NEW ✨)
+
+### 인증 API
+```
+POST   /api/auth/signup      # 회원가입
+POST   /api/auth/login       # 로그인
+GET    /api/auth/health      # 서버 상태
+```
+
+### 경로 API
+```
+POST   /api/routes                    # 경로 생성 (A* 알고리즘)
+GET    /api/routes                    # 내 경로 목록
+GET    /api/routes/{id}               # 경로 상세
+DELETE /api/routes/{id}               # 경로 삭제
+PATCH  /api/routes/{id}/favorite      # 즐겨찾기 토글
+```
+
+### 커뮤니티 API
+```
+GET    /api/community/posts           # 게시글 목록
+POST   /api/community/posts           # 게시글 작성
+GET    /api/community/posts/{id}      # 게시글 조회
+PUT    /api/community/posts/{id}      # 게시글 수정
+DELETE /api/community/posts/{id}      # 게시글 삭제
+POST   /api/community/posts/{id}/like # 좋아요
+```
+
+### API 사용 예시
+```bash
+# 회원가입
+curl -X POST http://localhost:8080/api/auth/signup \
+  -H "Content-Type: application/json" \
+  -d '{"username":"rider01","email":"rider@test.com","password":"password123","nickname":"라이더"}'
+
+# 경로 생성 (그늘 경로)
+curl -X POST http://localhost:8080/api/routes \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer {YOUR_JWT_TOKEN}" \
+  -d '{
+    "routeName":"수원역 → 성남시청",
+    "startLat":37.2660,"startLng":127.0010,
+    "endLat":37.4201,"endLng":127.1262,
+    "routeType":"SHADE_OPTIMIZED"
+  }'
+```
+
+## 11. 🗺️ 사용된 API 레이어
 
 ### 경기기후플랫폼 API (Climate.gg)
 
