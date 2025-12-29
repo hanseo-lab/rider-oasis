@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MapPin, Search, Navigation, TrendingUp, Trees, Clock, Thermometer } from 'lucide-react';
 import { routesAPI } from '../api/routes';
+import { userAPI } from '../api/user';
 import type { RouteResponse } from '../types/route';
+import type { SeasonMode } from '../types/user';
 import RouteComparison from '../components/RouteComparison';
 import RouteMap from '../components/RouteMap';
 
@@ -24,6 +26,20 @@ export default function RouteSearchPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [step, setStep] = useState<'search' | 'compare'>('search');
+  const [seasonMode, setSeasonMode] = useState<SeasonMode>('AUTO');
+
+  useEffect(() => {
+    loadSeasonMode();
+  }, []);
+
+  const loadSeasonMode = async () => {
+    try {
+      const userInfo = await userAPI.getMyInfo();
+      setSeasonMode(userInfo.seasonMode);
+    } catch (error) {
+      console.error('계절 모드 로딩 실패:', error);
+    }
+  };
 
   // 간단한 주소 검색 (Nominatim API 사용)
   const searchAddress = async (query: string, isStart: boolean) => {
@@ -96,9 +112,10 @@ export default function RouteSearchPage() {
         routeType: 'SHORTEST',
       });
 
-      // 그늘 최적화 경로 요청
+      // 그늘 최적화 경로 요청 (겨울 모드 시 "안전 경로")
+      const routeLabel = seasonMode === 'WINTER' ? '안전 경로 (빙판 회피)' : '그늘 경로';
       const shadePromise = routesAPI.createRoute({
-        routeName: `그늘 경로: ${startLocation.address} → ${endLocation.address}`,
+        routeName: `${routeLabel}: ${startLocation.address} → ${endLocation.address}`,
         startLat: startLocation.lat,
         startLng: startLocation.lng,
         startAddress: startLocation.address,
@@ -125,10 +142,10 @@ export default function RouteSearchPage() {
   return (
     <div className="min-h-screen bg-gray-900">
       {/* 헤더 */}
-      <header className="bg-gray-800 text-white p-4 shadow-lg sticky top-0 z-10">
+      <header className={`bg-gray-800 text-white p-4 shadow-lg sticky top-0 z-10 ${seasonMode === 'WINTER' ? 'border-b-2 border-orange-500/30' : 'border-b-2 border-green-500/30'}`}>
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent">
-            경로 탐색
+          <h1 className={`text-2xl font-bold bg-gradient-to-r ${seasonMode === 'WINTER' ? 'from-orange-400 to-amber-400' : 'from-green-400 to-blue-400'} bg-clip-text text-transparent`}>
+            {seasonMode === 'WINTER' ? '안전 경로 탐색' : '경로 탐색'}
           </h1>
           {step === 'compare' && (
             <button
@@ -227,14 +244,14 @@ export default function RouteSearchPage() {
               <button
                 onClick={handleSearchRoutes}
                 disabled={!startLocation || !endLocation || loading}
-                className="w-full bg-gradient-to-r from-green-500 to-blue-500 text-white py-4 rounded-xl font-bold text-lg hover:from-green-600 hover:to-blue-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className={`w-full bg-gradient-to-r ${seasonMode === 'WINTER' ? 'from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600' : 'from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600'} text-white py-4 rounded-xl font-bold text-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2`}
               >
                 {loading ? (
                   <>처리 중...</>
                 ) : (
                   <>
                     <TrendingUp className="w-5 h-5" />
-                    경로 탐색 시작
+                    {seasonMode === 'WINTER' ? '안전 경로 탐색' : '경로 탐색 시작'}
                   </>
                 )}
               </button>
@@ -263,12 +280,13 @@ export default function RouteSearchPage() {
                 shadeRoute={shadeRoute}
                 selectedRoute={selectedRoute}
                 onSelectRoute={setSelectedRoute}
+                seasonMode={seasonMode}
               />
             )}
 
             {/* 지도 표시 */}
             {selectedRoute && (
-              <RouteMap route={selectedRoute} />
+              <RouteMap route={selectedRoute} seasonMode={seasonMode} />
             )}
           </div>
         )}

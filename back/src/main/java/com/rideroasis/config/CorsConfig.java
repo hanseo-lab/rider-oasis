@@ -16,11 +16,10 @@ public class CorsConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // 프론트엔드 개발 서버 허용
-        configuration.setAllowedOrigins(Arrays.asList(
-            "http://localhost:5173",  // Vite 기본 포트
-            "http://localhost:3000",
-            "http://127.0.0.1:5173"
+        // 프론트엔드 개발 서버 허용 (모든 localhost 포트)
+        configuration.setAllowedOriginPatterns(Arrays.asList(
+            "http://localhost:*",
+            "http://127.0.0.1:*"
         ));
 
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));

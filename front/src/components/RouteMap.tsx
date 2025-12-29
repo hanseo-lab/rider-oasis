@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { RouteResponse } from '../types/route';
+import type { SeasonMode } from '../types/user';
 
 // 마커 아이콘 설정
 const startIcon = new L.Icon({
@@ -39,9 +40,11 @@ function FitBounds({ route }: { route: RouteResponse }) {
 
 interface RouteMapProps {
   route: RouteResponse;
+  seasonMode: SeasonMode;
 }
 
-export default function RouteMap({ route }: RouteMapProps) {
+export default function RouteMap({ route, seasonMode }: RouteMapProps) {
+  const isWinter = seasonMode === 'WINTER';
   // GeoJSON 파싱
   const pathCoordinates = (() => {
     try {
@@ -58,7 +61,10 @@ export default function RouteMap({ route }: RouteMapProps) {
     (route.startLng + route.endLng) / 2
   ];
 
-  const lineColor = route.routeType === 'SHADE_OPTIMIZED' ? '#22c55e' : '#3b82f6';
+  // 겨울: SHADE_OPTIMIZED는 주황색(안전 경로), 여름: 초록색(그늘 경로)
+  const lineColor = route.routeType === 'SHADE_OPTIMIZED'
+    ? (isWinter ? '#f97316' : '#22c55e')
+    : '#3b82f6';
 
   return (
     <div className="bg-gray-800 rounded-xl p-6 shadow-xl">
@@ -132,12 +138,16 @@ export default function RouteMap({ route }: RouteMapProps) {
           <p className="text-white font-bold">{route.estimatedTime}분</p>
         </div>
         <div className="text-center">
-          <p className="text-gray-400 text-xs mb-1">그늘 비율</p>
-          <p className="text-green-400 font-bold">{(route.shadeRatio * 100).toFixed(0)}%</p>
+          <p className="text-gray-400 text-xs mb-1">{isWinter ? '결빙 위험도' : '그늘 비율'}</p>
+          <p className={`${isWinter ? 'text-orange-400' : 'text-green-400'} font-bold`}>
+            {(route.shadeRatio * 100).toFixed(0)}%
+          </p>
         </div>
         <div className="text-center">
-          <p className="text-gray-400 text-xs mb-1">폭염 노출</p>
-          <p className="text-red-400 font-bold">{(route.heatExposure * 100).toFixed(0)}%</p>
+          <p className="text-gray-400 text-xs mb-1">{isWinter ? '양지 비율' : '폭염 노출'}</p>
+          <p className={`${isWinter ? 'text-amber-400' : 'text-red-400'} font-bold`}>
+            {(route.heatExposure * 100).toFixed(0)}%
+          </p>
         </div>
       </div>
     </div>

@@ -165,8 +165,12 @@ export default function MyPage() {
             </h2>
             <div className="grid md:grid-cols-3 gap-6">
               <div className="text-center">
-                <div className="text-4xl font-bold text-red-400">{stats.heatAvoided.toFixed(1)} km</div>
-                <div className="text-sm text-gray-400 mt-1">회피한 폭염 구간</div>
+                <div className={`text-4xl font-bold ${seasonMode === 'WINTER' ? 'text-orange-400' : 'text-red-400'}`}>
+                  {stats.heatAvoided.toFixed(1)} km
+                </div>
+                <div className="text-sm text-gray-400 mt-1">
+                  {seasonMode === 'WINTER' ? '회피한 결빙/위험 구간' : '회피한 폭염 구간'}
+                </div>
               </div>
               <div className="text-center">
                 <div className="text-4xl font-bold text-blue-400">{stats.sheltersUsed}</div>

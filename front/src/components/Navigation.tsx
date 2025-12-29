@@ -1,7 +1,7 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { userAPI } from '../api/user';
-import { Map, Navigation as NavIcon, LogOut, User, Sun, Snowflake } from 'lucide-react';
+import { Map, Navigation as NavIcon, LogOut, User, Sun, Snowflake, ShieldCheck } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import type { SeasonMode } from '../types/user';
 
@@ -56,8 +56,11 @@ export default function Navigation() {
           <div className="flex items-center justify-between h-16">
             {/* 로고 & 메뉴 */}
             <div className="flex items-center gap-8">
-              <Link to="/" className="text-xl font-bold bg-gradient-to-r from-green-400 to-blue-400 bg-clip-text text-transparent">
-                경기 그늘 로드
+              <Link to="/" className="flex items-center gap-2">
+                <ShieldCheck className="w-6 h-6 text-green-400" />
+                <span className="text-xl font-bold bg-gradient-to-r from-orange-400 via-green-400 to-blue-400 bg-clip-text text-transparent">
+                  경기 안심 로드
+                </span>
               </Link>
 
               <div className="flex gap-2">
