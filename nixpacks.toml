@@ -1,0 +1,13 @@
+# Nixpacks configuration for Railway (Monorepo Root)
+# This instructs Railway how to build the backend located in the 'back' directory
+
+[phases.setup]
+nixPkgs = ["jdk17"]
+
+[phases.build]
+# Grant execution permission and run build inside 'back' directory
+cmds = ["chmod +x back/gradlew", "cd back && ./gradlew clean build -x test"]
+
+[start]
+# Run the generated JAR file from the backend build directory
+cmd = "java -jar back/build/libs/*.jar"
