@@ -29,6 +29,11 @@ export default function SignupPage() {
     e.preventDefault();
     setError('');
 
+    if (formData.password.length < 6) {
+      setError('비밀번호는 최소 6자 이상이어야 합니다.');
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
       setError('비밀번호가 일치하지 않습니다.');
       return;
@@ -53,7 +58,8 @@ export default function SignupPage() {
 
       navigate('/');
     } catch (err: any) {
-      setError(err.response?.data?.message || '회원가입 실패');
+      const errorMessage = err.response?.data?.message || '회원가입 실패: 서버 오류가 발생했습니다.';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
