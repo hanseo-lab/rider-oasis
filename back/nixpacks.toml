@@ -1,0 +1,11 @@
+# Nixpacks configuration for Railway
+# This ensures a consistent build environment overriding default detection
+
+[phases.setup]
+nixPkgs = ["jdk17"]
+
+[phases.build]
+cmds = ["chmod +x gradlew", "./gradlew clean build -x test"]
+
+[start]
+cmd = "java -jar build/libs/*.jar"
