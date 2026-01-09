@@ -22,19 +22,20 @@ public class CorsConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         List<String> originPatterns = new ArrayList<>();
-        
+
         // 개발 환경: localhost 허용
         originPatterns.add("http://localhost:*");
         originPatterns.add("http://127.0.0.1:*");
-        
-        // 프로덕션 환경: Vercel 도메인 허용
+
+        // 프로덕션 환경: Vercel 및 Railway 도메인 허용
         if (allowedOrigins != null && !allowedOrigins.isEmpty()) {
             originPatterns.addAll(Arrays.asList(allowedOrigins.split(",")));
-        } else {
-            // 환경 변수가 없으면 기본적으로 Vercel 패턴 허용
-            originPatterns.add("https://*.vercel.app");
-            originPatterns.add("https://*.vercel.app/*");
         }
+
+        // 기본 허용 도메인 추가 (환경 변수 여부와 상관없이 항상 허용)
+        originPatterns.add("https://rider-oasis-project.vercel.app");
+        originPatterns.add("https://rider-oasis-production.up.railway.app");
+        originPatterns.add("https://*.vercel.app");
 
         configuration.setAllowedOriginPatterns(originPatterns);
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));

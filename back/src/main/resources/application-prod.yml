@@ -17,7 +17,7 @@ spring:
 
 # CORS Configuration
 cors:
-  allowed-origins: ${CORS_ALLOWED_ORIGINS:https://rider-oasis.vercel.app}
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:https://rider-oasis.vercel.app,https://rider-oasis-project.vercel.app,http://localhost:5173}
 
 logging:
   level:
