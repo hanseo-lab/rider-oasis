@@ -72,8 +72,10 @@ export default function SignupPage() {
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-green-400 to-blue-500 rounded-full mb-4">
             <Bike className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">회원가입</h1>
-          <p className="text-gray-400 text-sm">경기 그늘 로드와 함께하세요</p>
+          <h2 className="mt-4 text-3xl font-bold text-white tracking-tight">
+            회원가입
+          </h2>
+          <p className="text-gray-400 text-sm">경기 안심 로드와 함께하세요</p>
         </div>
 
         <form onSubmit={handleSignup} className="space-y-4">
