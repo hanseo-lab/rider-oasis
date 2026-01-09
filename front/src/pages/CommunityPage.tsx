@@ -113,22 +113,82 @@ export default function CommunityPage() {
     return date.toLocaleDateString('ko-KR');
   };
 
+  // Tailwind 스타일 정의
+  const styles = {
+    container: "min-h-screen bg-gray-900 pb-20",
+    header: "bg-gradient-to-r from-purple-900/50 to-blue-900/50 border-b border-purple-500/30 p-6",
+    headerInner: "max-w-7xl mx-auto flex items-center justify-between",
+    headerTitleContainer: "",
+    headerTitle: "text-3xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent",
+    headerSubtitle: "text-gray-400 text-sm mt-1",
+    writeButton: "flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-lg hover:from-purple-600 hover:to-blue-600 transition-all font-semibold shadow-lg",
+
+    mainContentArea: "max-w-7xl mx-auto px-4 py-6",
+
+    searchSection: "mb-6",
+    searchBar: "flex gap-2",
+    searchInputWrapper: "flex-1 relative",
+    searchIcon: "absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400",
+    searchInput: "w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500",
+    searchButton: "px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-semibold",
+
+    categoryTabs: "flex gap-2 mb-6 overflow-x-auto pb-2",
+    categoryButton: (isSelected: boolean) => `
+      flex items-center gap-2 px-4 py-2 rounded-lg whitespace-nowrap transition-all
+      ${isSelected
+        ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg'
+        : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+      }
+    `,
+
+    loadingState: "text-center py-20",
+    loadingSpinner: "inline-block w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin",
+    loadingText: "text-gray-400 mt-4",
+
+    noPostsState: "text-center py-20",
+    noPostsIcon: "w-16 h-16 text-gray-600 mx-auto mb-4",
+    noPostsText: "text-gray-400",
+
+    postGrid: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4",
+    postCard: "block bg-gray-800 rounded-xl p-6 hover:bg-gray-750 transition-all border border-gray-700 hover:border-purple-500/50 h-full",
+    postCardHeader: "flex items-start justify-between gap-4",
+    postCardContent: "flex-1 min-w-0",
+    postCardTitle: "text-lg font-bold text-white mb-2 truncate hover:text-purple-400 transition-colors",
+    postCardPreview: "text-gray-400 text-sm mb-3 line-clamp-2",
+    postCardLocation: "flex items-center gap-1 text-green-400 text-xs mb-3",
+    postCardMeta: "flex items-center gap-4 text-xs text-gray-500",
+    postCardAuthor: "font-medium text-gray-400",
+    postCardMetaItem: "flex items-center gap-1",
+    postCardArrow: "w-5 h-5 text-gray-600 flex-shrink-0",
+
+    paginationContainer: "flex justify-center gap-2 mt-8",
+    paginationButton: "px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed",
+    paginationPageGroup: "flex items-center gap-2",
+    paginationNumButton: (isActive: boolean) => `
+      w-10 h-10 rounded-lg font-semibold transition-colors
+      ${isActive
+        ? 'bg-purple-500 text-white'
+        : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+      }
+    `,
+  };
+
   return (
-    <div className="min-h-screen bg-gray-900 pb-10">
+    <div className={styles.container}>
       {/* 헤더 */}
-      <div className="bg-gradient-to-r from-purple-900/50 to-blue-900/50 border-b border-purple-500/30 p-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between">
+      <div className={styles.header}>
+        <div className={styles.headerInner}>
+          <div className="flex items-center justify-between w-full">
             <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+              <h1 className={styles.headerTitle}>
                 커뮤니티
               </h1>
-              <p className="text-gray-400 text-sm mt-1">라이더들과 정보를 공유하세요</p>
+              <p className={styles.headerSubtitle}>라이더들과 정보를 공유하세요</p>
             </div>
 
             <Link
               to="/community/create"
-              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-lg hover:from-purple-600 hover:to-blue-600 transition-all font-semibold shadow-lg"
+              className={styles.writeButton}
             >
               <PenSquare className="w-5 h-5" />
               글쓰기
@@ -137,24 +197,24 @@ export default function CommunityPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-6">
+      <div className={styles.mainContentArea}>
         {/* 검색창 */}
-        <div className="mb-6">
-          <div className="flex gap-2">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+        <div className={styles.searchSection}>
+          <div className={styles.searchBar}>
+            <div className={styles.searchInputWrapper}>
+              <Search className={styles.searchIcon} />
               <input
                 type="text"
                 value={searchKeyword}
                 onChange={(e) => setSearchKeyword(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                 placeholder="게시글 검색..."
-                className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className={styles.searchInput}
               />
             </div>
             <button
               onClick={handleSearch}
-              className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-semibold"
+              className={styles.searchButton}
             >
               검색
             </button>
@@ -162,7 +222,7 @@ export default function CommunityPage() {
         </div>
 
         {/* 카테고리 탭 */}
-        <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+        <div className={styles.categoryTabs}>
           {categories.map((category) => {
             const Icon = category.icon;
             const isSelected = selectedCategory === category.value;
@@ -174,13 +234,7 @@ export default function CommunityPage() {
                   setSelectedCategory(category.value);
                   setPage(0);
                 }}
-                className={`
-                  flex items-center gap-2 px-4 py-2 rounded-lg whitespace-nowrap transition-all
-                  ${isSelected
-                    ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg'
-                    : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                  }
-                `}
+                className={styles.categoryButton(isSelected)}
               >
                 <Icon className="w-4 h-4" />
                 <span className="font-medium">{category.label}</span>
@@ -191,66 +245,66 @@ export default function CommunityPage() {
 
         {/* 게시글 목록 */}
         {loading ? (
-          <div className="text-center py-20">
-            <div className="inline-block w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
-            <p className="text-gray-400 mt-4">게시글을 불러오는 중...</p>
+          <div className={styles.loadingState}>
+            <div className={styles.loadingSpinner}></div>
+            <p className={styles.loadingText}>게시글을 불러오는 중...</p>
           </div>
         ) : posts.length === 0 ? (
-          <div className="text-center py-20">
-            <MessageSquare className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-            <p className="text-gray-400">게시글이 없습니다.</p>
+          <div className={styles.noPostsState}>
+            <MessageSquare className={styles.noPostsIcon} />
+            <p className={styles.noPostsText}>게시글이 없습니다.</p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className={styles.postGrid}>
             {posts.map((post) => (
               <Link
                 key={post.id}
                 to={`/community/posts/${post.id}`}
-                className="block bg-gray-800 rounded-xl p-6 hover:bg-gray-750 transition-all border border-gray-700 hover:border-purple-500/50"
+                className={styles.postCard}
               >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 min-w-0">
+                <div className={styles.postCardHeader}>
+                  <div className={styles.postCardContent}>
                     {/* 카테고리 배지 */}
                     <div className="mb-2">{getCategoryBadge(post.category)}</div>
 
                     {/* 제목 */}
-                    <h3 className="text-lg font-bold text-white mb-2 truncate hover:text-purple-400 transition-colors">
+                    <h3 className={styles.postCardTitle}>
                       {post.title}
                     </h3>
 
                     {/* 내용 미리보기 */}
-                    <p className="text-gray-400 text-sm mb-3 line-clamp-2">{post.content}</p>
+                    <p className={styles.postCardPreview}>{post.content}</p>
 
                     {/* 위치 정보 */}
                     {post.locationName && (
-                      <div className="flex items-center gap-1 text-green-400 text-xs mb-3">
+                      <div className={styles.postCardLocation}>
                         <MapPin className="w-3 h-3" />
                         <span>{post.locationName}</span>
                       </div>
                     )}
 
                     {/* 메타 정보 */}
-                    <div className="flex items-center gap-4 text-xs text-gray-500">
-                      <span className="font-medium text-gray-400">{post.authorNickname || post.authorUsername}</span>
+                    <div className={styles.postCardMeta}>
+                      <span className={styles.postCardAuthor}>{post.authorNickname || post.authorUsername}</span>
                       <span>•</span>
                       <span>{formatDate(post.createdAt)}</span>
                       <span>•</span>
-                      <div className="flex items-center gap-1">
+                      <div className={styles.postCardMetaItem}>
                         <Eye className="w-3 h-3" />
                         {post.viewCount}
                       </div>
-                      <div className="flex items-center gap-1">
+                      <div className={styles.postCardMetaItem}>
                         <ThumbsUp className="w-3 h-3" />
                         {post.likeCount}
                       </div>
-                      <div className="flex items-center gap-1">
+                      <div className={styles.postCardMetaItem}>
                         <MessageSquare className="w-3 h-3" />
                         {post.commentCount}
                       </div>
                     </div>
                   </div>
 
-                  <ChevronRight className="w-5 h-5 text-gray-600 flex-shrink-0" />
+                  <ChevronRight className={styles.postCardArrow} />
                 </div>
               </Link>
             ))}
@@ -259,16 +313,16 @@ export default function CommunityPage() {
 
         {/* 페이지네이션 */}
         {totalPages > 1 && (
-          <div className="flex justify-center gap-2 mt-8">
+          <div className={styles.paginationContainer}>
             <button
               onClick={() => setPage((p) => Math.max(0, p - 1))}
               disabled={page === 0}
-              className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className={styles.paginationButton}
             >
               이전
             </button>
 
-            <div className="flex items-center gap-2">
+            <div className={styles.paginationPageGroup}>
               {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                 const pageNum = page < 3 ? i : page - 2 + i;
                 if (pageNum >= totalPages) return null;
@@ -277,13 +331,7 @@ export default function CommunityPage() {
                   <button
                     key={pageNum}
                     onClick={() => setPage(pageNum)}
-                    className={`
-                      w-10 h-10 rounded-lg font-semibold transition-colors
-                      ${page === pageNum
-                        ? 'bg-purple-500 text-white'
-                        : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                      }
-                    `}
+                    className={styles.paginationNumButton(page === pageNum)}
                   >
                     {pageNum + 1}
                   </button>
@@ -294,7 +342,7 @@ export default function CommunityPage() {
             <button
               onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
               disabled={page >= totalPages - 1}
-              className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className={styles.paginationButton}
             >
               다음
             </button>

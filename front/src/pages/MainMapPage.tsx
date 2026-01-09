@@ -294,38 +294,63 @@ export default function MainMapPage() {
   const config = seasonConfig[seasonMode as 'SUMMER' | 'WINTER'] || seasonConfig.SUMMER;
   const SeasonIcon = config.icon;
 
+  // Tailwind 스타일 정의
+  const styles = {
+    container: "h-screen flex flex-col bg-gray-900 pb-16 md:pb-0",
+    banner: `bg-gradient-to-r ${config.bgColor} border-b ${config.borderColor} p-4`,
+    bannerContent: "max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4",
+    legendContainer: "flex flex-wrap justify-center gap-3 md:gap-6 text-xs md:text-sm",
+    legendItem: "flex items-center gap-2",
+    legendText: "text-gray-300",
+    routeBtn: `
+      flex items-center gap-2 px-4 py-2 bg-gradient-to-r 
+      ${seasonMode === 'WINTER'
+        ? 'from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600'
+        : 'from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600'
+      } 
+      text-white rounded-lg transition-all font-semibold text-sm md:text-base w-full md:w-auto justify-center
+    `,
+    error: "bg-yellow-900 text-yellow-200 p-3 text-center",
+    mapWrapper: "flex-1 relative z-0",
+    mapContainer: "h-full w-full",
+    popupTitle: (colorClass: string) => `font-bold ${colorClass}`,
+    popupSub: "text-xs text-gray-600 mt-1",
+    popupCommunityTitle: "font-bold text-purple-600 flex items-center gap-2",
+    popupCommunityContent: "text-xs text-gray-600 mt-2",
+    popupLocation: "text-green-600 mb-2 flex items-center gap-1",
+    popupLink: "text-purple-600 hover:text-purple-700 font-semibold underline block mt-2",
+    statusBar: "bg-gray-800 text-gray-300 px-4 py-2 text-xs flex flex-wrap justify-center gap-3 md:gap-6 border-t border-gray-700",
+  };
+
   return (
-    <div className="h-screen flex flex-col bg-gray-900">
+    <div className={styles.container}>
       {/* 상단 배너 - 계절별 안내 */}
-      <div className={`bg-gradient-to-r ${config.bgColor} border-b ${config.borderColor} p-4`}>
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-6 text-sm">
-            <div className="flex items-center gap-2">
+      <div className={styles.banner}>
+        <div className={styles.bannerContent}>
+          <div className={styles.legendContainer}>
+            <div className={styles.legendItem}>
               <AlertTriangle className="text-red-400" size={18} />
-              <span className="text-gray-300">붉은색: {config.heatLabel}</span>
+              <span className={styles.legendText}>붉은색: {config.heatLabel}</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className={styles.legendItem}>
               <Trees className={seasonMode === 'WINTER' ? 'text-blue-300' : 'text-green-400'} size={18} />
-              <span className="text-gray-300">초록색: {config.vegLabel}</span>
+              <span className={styles.legendText}>초록색: {config.vegLabel}</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className={styles.legendItem}>
               <Home className={config.shelterColor} size={18} />
-              <span className="text-gray-300">
+              <span className={styles.legendText}>
                 {seasonMode === 'WINTER' ? '주황' : '파란'} 핀: {config.shelterLabel}
               </span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className={styles.legendItem}>
               <MessageSquare className="text-purple-400" size={18} />
-              <span className="text-gray-300">보라 핀: 커뮤니티 제보</span>
+              <span className={styles.legendText}>보라 핀: 제보</span>
             </div>
           </div>
 
           <Link
             to="/route-search"
-            className={`flex items-center gap-2 px-4 py-2 bg-gradient-to-r ${seasonMode === 'WINTER'
-                ? 'from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600'
-                : 'from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600'
-              } text-white rounded-lg transition-all font-semibold`}
+            className={styles.routeBtn}
           >
             <Navigation className="w-4 h-4" />
             경로 탐색 시작
@@ -334,11 +359,11 @@ export default function MainMapPage() {
       </div>
 
       {error && (
-        <div className="bg-yellow-900 text-yellow-200 p-3 text-center">⚠️ {error}</div>
+        <div className={styles.error}>⚠️ {error}</div>
       )}
 
-      <div className="flex-1">
-        <MapContainer center={center} zoom={11} style={{ height: '100%', width: '100%' }}>
+      <div className={styles.mapWrapper}>
+        <MapContainer center={center} zoom={11} className={styles.mapContainer}>
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -380,10 +405,10 @@ export default function MainMapPage() {
             return (
               <Marker key={idx} position={[lat, lng]} icon={shelterIcon}>
                 <Popup>
-                  <div className="font-bold" style={{ color: seasonMode === 'WINTER' ? '#fb923c' : '#3b82f6' }}>
+                  <div className={styles.popupTitle(seasonMode === 'WINTER' ? 'text-orange-400' : 'text-blue-500')}>
                     {config.shelterEmoji} {name}
                   </div>
-                  <div className="text-xs text-gray-600 mt-1">
+                  <div className={styles.popupSub}>
                     {props.fclt_se_nm && <div>유형: {props.fclt_se_nm}</div>}
                     {capacity && <div>수용: {capacity}명</div>}
                     {address && <div className="mt-1">{address}</div>}
@@ -404,24 +429,24 @@ export default function MainMapPage() {
                 icon={communityIcon}
               >
                 <Popup>
-                  <div className="font-bold text-purple-600 flex items-center gap-2">
+                  <div className={styles.popupCommunityTitle}>
                     <MessageSquare className="w-4 h-4" />
                     {post.title}
                   </div>
-                  <div className="text-xs text-gray-600 mt-2">
+                  <div className={styles.popupCommunityContent}>
                     <div className="mb-1">
                       <span className="font-semibold">작성자:</span> {post.authorNickname || post.authorUsername}
                     </div>
                     <div className="mb-2 line-clamp-2">{post.content}</div>
                     {post.locationName && (
-                      <div className="text-green-600 mb-2 flex items-center gap-1">
+                      <div className={styles.popupLocation}>
                         <MessageSquare className="w-3 h-3" />
                         {post.locationName}
                       </div>
                     )}
                     <Link
                       to={`/community/posts/${post.id}`}
-                      className="text-purple-600 hover:text-purple-700 font-semibold underline block mt-2"
+                      className={styles.popupLink}
                     >
                       상세보기 →
                     </Link>
@@ -433,7 +458,7 @@ export default function MainMapPage() {
         </MapContainer>
       </div>
 
-      <div className="bg-gray-800 text-gray-300 px-4 py-2 text-xs flex justify-center gap-6">
+      <div className={styles.statusBar}>
         <span>위험 데이터: {heatmapData ? '✓' : '✗'}</span>
         <span>식생 데이터: {vegetationData ? '✓' : '✗'}</span>
         <span>
@@ -441,11 +466,11 @@ export default function MainMapPage() {
         </span>
         <span className="text-purple-400">
           <MessageSquare className="inline w-3 h-3 mr-1" />
-          커뮤니티 제보: {communityPosts.length}개
+          제보: {communityPosts.length}개
         </span>
         <span className={config.color}>
           <SeasonIcon className="inline w-3 h-3 mr-1" />
-          계절 모드: {seasonMode === 'SUMMER' ? '여름' : '겨울'}
+          모드: {seasonMode === 'SUMMER' ? '여름' : '겨울'}
         </span>
       </div>
     </div>
