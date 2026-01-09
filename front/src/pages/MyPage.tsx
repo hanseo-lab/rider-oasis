@@ -169,7 +169,7 @@ export default function MyPage() {
                   {stats.heatAvoided.toFixed(1)} km
                 </div>
                 <div className="text-sm text-gray-400 mt-1">
-                  {seasonMode === 'WINTER' ? '회피한 결빙/위험 구간' : '회피한 폭염 구간'}
+                  {seasonMode === 'WINTER' ? '회피한 결빙/위험 구간' : '회피한 위험 구간'}
                 </div>
               </div>
               <div className="text-center">
@@ -269,7 +269,7 @@ export default function MyPage() {
               disabled={seasonMode === 'WINTER'}
             />
             <ToggleSwitch
-              label="폭염 지역 회피"
+              label="위험 지역 회피"
               checked={avoidHeat}
               onChange={setAvoidHeat}
               icon={<ThermometerSun className="w-5 h-5" />}
@@ -431,7 +431,7 @@ function RouteCard({ route }: { route: RouteResponse }) {
             <span className="ml-1 text-green-400 font-semibold">{(route.shadeRatio * 100).toFixed(0)}%</span>
           </div>
           <div>
-            <span className="text-gray-400">폭염:</span>
+            <span className="text-gray-400">위험:</span>
             <span className="ml-1 text-red-400 font-semibold">{(route.heatExposure * 100).toFixed(0)}%</span>
           </div>
         </div>

@@ -10,6 +10,14 @@ export interface CommunityPostRequest {
   locationName?: string;
 }
 
+export interface CommentResponse {
+  id: number;
+  content: string;
+  authorUsername: string;
+  authorNickname: string;
+  createdAt: string;
+}
+
 export interface CommunityPostResponse {
   id: number;
   title: string;
@@ -23,6 +31,7 @@ export interface CommunityPostResponse {
   viewCount: number;
   likeCount: number;
   commentCount: number;
+  comments?: CommentResponse[];
   createdAt: string;
   updatedAt: string;
 }

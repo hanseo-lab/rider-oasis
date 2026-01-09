@@ -108,11 +108,11 @@ export default function RouteComparison({
             </div>
           </div>
 
-          {/* 폭염 노출도 / 양지 비율 */}
+          {/* 위험 노출도 / 양지 비율 */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-gray-300">
               {isWinter ? <Sun className="w-4 h-4" /> : <Thermometer className="w-4 h-4" />}
-              <span className="text-sm">{isWinter ? '양지 비율' : '폭염 노출'}</span>
+              <span className="text-sm">{isWinter ? '양지 비율' : '위험 노출'}</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-24 h-2 bg-gray-700 rounded-full overflow-hidden">
@@ -143,7 +143,7 @@ export default function RouteComparison({
           <div className="mt-4 pt-4 border-t border-gray-700">
             <div className={`inline-flex items-center gap-2 px-3 py-1 ${isWinter ? 'bg-orange-500/20 text-orange-400' : 'bg-green-500/20 text-green-400'} rounded-full text-xs font-semibold`}>
               {isWinter ? <AlertTriangle className="w-3 h-3" /> : <Trees className="w-3 h-3" />}
-              {isWinter ? '빙판 회피 추천 경로' : '폭염 대비 추천 경로'}
+              {isWinter ? '빙판 회피 추천 경로' : '위험 회피 추천 경로'}
             </div>
           </div>
         )}
@@ -158,7 +158,7 @@ export default function RouteComparison({
         <p className="text-gray-400 text-sm">
           {isWinter
             ? '원하는 경로를 선택하세요. 안전 경로는 약간 멀지만 빙판 위험이 적습니다.'
-            : '원하는 경로를 선택하세요. 그늘 경로는 약간 멀지만 폭염 노출이 적습니다.'}
+            : '원하는 경로를 선택하세요. 안전 경로는 약간 멀지만 위험 노출이 적습니다.'}
         </p>
       </div>
 
@@ -201,7 +201,7 @@ export default function RouteComparison({
             </p>
           </div>
           <div>
-            <p className="text-gray-400 text-sm mb-1">{isWinter ? '양지 증가' : '폭염 감소'}</p>
+            <p className="text-gray-400 text-sm mb-1">{isWinter ? '양지 증가' : '위험 감소'}</p>
             <p className={`${isWinter ? 'text-amber-400' : 'text-blue-400'} font-bold`}>
               {isWinter ? '+' : '-'}
               {Math.abs((shortestRoute.heatExposure - shadeRoute.heatExposure) * 100).toFixed(0)}%

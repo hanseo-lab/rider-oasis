@@ -76,7 +76,7 @@ function HeatmapLayer({ data }: { data: any }) {
         const emission = props.cbn_ehqty || props.gas_cbn_ehqty || 0;
         const building = props.bldg_nm || props.building_name || '';
         layer.bindPopup(`
-          <b>🔥 폭염 위험 지역</b><br/>
+          <b>🔥 계절별 위험 지역</b><br/>
           ${building ? `건물: ${building}<br/>` : ''}
           탄소배출: ${emission.toLocaleString()} tCO2eq
         `);
@@ -272,7 +272,7 @@ export default function MainMapPage() {
       color: 'text-orange-400',
       bgColor: 'from-orange-900/50 to-red-900/50',
       borderColor: 'border-orange-500/30',
-      heatLabel: '폭염 지역',
+      heatLabel: '위험 지역',
       vegLabel: '시원한 그늘',
       shelterLabel: '무더위 쉼터',
       shelterEmoji: '💧',
@@ -322,11 +322,10 @@ export default function MainMapPage() {
 
           <Link
             to="/route-search"
-            className={`flex items-center gap-2 px-4 py-2 bg-gradient-to-r ${
-              seasonMode === 'WINTER'
+            className={`flex items-center gap-2 px-4 py-2 bg-gradient-to-r ${seasonMode === 'WINTER'
                 ? 'from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600'
                 : 'from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600'
-            } text-white rounded-lg transition-all font-semibold`}
+              } text-white rounded-lg transition-all font-semibold`}
           >
             <Navigation className="w-4 h-4" />
             경로 탐색 시작
@@ -435,7 +434,7 @@ export default function MainMapPage() {
       </div>
 
       <div className="bg-gray-800 text-gray-300 px-4 py-2 text-xs flex justify-center gap-6">
-        <span>폭염 데이터: {heatmapData ? '✓' : '✗'}</span>
+        <span>위험 데이터: {heatmapData ? '✓' : '✗'}</span>
         <span>식생 데이터: {vegetationData ? '✓' : '✗'}</span>
         <span>
           {config.shelterEmoji} {config.shelterLabel}: {shelters.length}개

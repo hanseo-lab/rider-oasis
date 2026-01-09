@@ -94,7 +94,7 @@
 
 | 데이터셋 명칭 | 활용 목적 | 시각화 방식 |
 |---------------|-----------|-------------|
-| **폭염 체감온도** | 생존을 위협하는 위험 지역 식별 | 🔴 Red Heatmap (Warning) |
+| **혹한 체감온도** | 생존을 위협하는 위험 지역 식별 | 🔴 Red Heatmap (Warning) |
 | **현존식생지도** | 나무/녹지가 있어 상대적으로 시원한 지역 식별 | 🟢 Green Zone (Safe) |
 | **대피시설 위치** | 긴급 시 휴식할 수 있는 쉼터 정보 제공 | 🔵 Blue Pin (Shelter) |
 
@@ -283,7 +283,7 @@ riderOasis/
 |--------|----------|-------------|---------------|
 | POST | `/api/routes` | 경로 생성 | ✅ |
 | GET | `/api/routes/{id}` | 경로 조회 | ❌ |
-| POST | `/api/routes/compare` | 경로 비교 | ✅ |
+
 | DELETE | `/api/routes/{id}` | 경로 삭제 | ✅ |
 | POST | `/api/routes/{id}/favorite` | 즐겨찾기 토글 | ✅ |
 

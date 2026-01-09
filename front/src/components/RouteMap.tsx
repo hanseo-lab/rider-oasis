@@ -144,7 +144,7 @@ export default function RouteMap({ route, seasonMode }: RouteMapProps) {
           </p>
         </div>
         <div className="text-center">
-          <p className="text-gray-400 text-xs mb-1">{isWinter ? '양지 비율' : '폭염 노출'}</p>
+          <p className="text-gray-400 text-xs mb-1">{isWinter ? '양지 비율' : '위험 노출'}</p>
           <p className={`${isWinter ? 'text-amber-400' : 'text-red-400'} font-bold`}>
             {(route.heatExposure * 100).toFixed(0)}%
           </p>

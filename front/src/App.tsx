@@ -8,6 +8,7 @@ import MainMapPage from './pages/MainMapPage';
 import MyPage from './pages/MyPage';
 import CommunityPage from './pages/CommunityPage';
 import PostCreatePage from './pages/PostCreatePage';
+import PostDetailPage from './pages/PostDetailPage';
 import Navigation from './components/Navigation';
 
 // 🔐 인증이 필요한 페이지를 보호하는 컴포넌트
@@ -98,6 +99,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="/community/posts/:postId" element={<PostDetailPage />} />
         </Route>
 
         {/* 3. 잘못된 경로 처리 (메인으로 이동) */}

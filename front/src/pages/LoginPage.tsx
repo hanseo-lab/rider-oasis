@@ -77,7 +77,7 @@ export default function LoginPage() {
           {/* 슬로건 */}
           <div className="flex items-center justify-center gap-2 text-gray-300 text-sm">
             <Sun className="w-4 h-4 text-orange-400" />
-            <span>폭염엔 시원한 그늘</span>
+            <span>4계절 내내 안전한 길</span>
             <span className="text-gray-600">•</span>
             <Snowflake className="w-4 h-4 text-blue-400" />
             <span>한파엔 안전한 길</span>
