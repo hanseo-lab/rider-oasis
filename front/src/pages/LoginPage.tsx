@@ -135,6 +135,12 @@ export default function LoginPage() {
             </div>
           </div>
 
+          <div className="flex justify-end">
+            <Link to="/find-account" className="text-sm text-gray-400 hover:text-green-400 transition-colors">
+              이메일 / 비밀번호 찾기
+            </Link>
+          </div>
+
           {error && (
             <div className="bg-red-900/50 border border-red-700 text-red-200 px-4 py-3 rounded-lg text-sm">
               {error}

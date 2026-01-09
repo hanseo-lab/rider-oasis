@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
 import LoginPage from './pages/LoginPage';
+import FindAccountPage from './pages/FindAccountPage';
 import SignupPage from './pages/SignupPage';
 import RouteSearchPage from './pages/RouteSearchPage';
 import MainMapPage from './pages/MainMapPage';
