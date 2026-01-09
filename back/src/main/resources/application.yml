@@ -33,8 +33,7 @@ spring:
 # Server Configuration
 server:
   port: ${PORT:8080}
-  servlet:
-    context-path: /api
+
 
 # JWT Configuration (HS512 requires at least 512 bits = 64 bytes)
 jwt:
