@@ -3,7 +3,7 @@ import axios, { InternalAxiosRequestConfig, AxiosError, AxiosResponse } from 'ax
 import { useAuthStore } from '../store/authStore';
 
 // ✅ 환경 변수(VITE_API_BASE_URL)가 있으면 그걸 쓰고, 없으면 로컬(localhost)을 씁니다.
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
 if (!import.meta.env.VITE_API_BASE_URL) {
   console.warn('⚠️ VITE_API_BASE_URL 환경 변수가 설정되지 않았습니다. 기본 값(localhost)을 사용합니다.');
