@@ -4,7 +4,7 @@ import com.rideroasis.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpMethod; // ✅ 이 부분이 추가되었습니다.
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -48,25 +48,29 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.configure(http))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        // 인증 없이 접근 가능한 경로 설정
-                        .requestMatchers("/auth/**").permitAll()        // 로그인, 회원가입
-                        .requestMatchers("/h2-console/**").permitAll()  // DB 콘솔
+            .csrf(csrf -> csrf.disable())
+            .cors(cors -> cors.configure(http))
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> auth
+                // 1. 인증/로그인 관련 허용
+                .requestMatchers("/auth/**").permitAll()
+                
+                // 2. H2 데이터베이스 콘솔 허용
+                .requestMatchers("/h2-console/**").permitAll()
+                
+                // 3. 커뮤니티 게시글 조회(GET)는 누구나 허용
+                .requestMatchers(HttpMethod.GET, "/community/posts/**").permitAll()
 
-                        // 공개 데이터 조회 (GET 요청만 허용)
-                        .requestMatchers(HttpMethod.GET, "/community/**").permitAll() // 커뮤니티 글 읽기
-                        .requestMatchers(HttpMethod.GET, "/routes/**").permitAll()    // 경로 검색 및 조회
+                // 4. ✅ [핵심] 경로 탐색 및 지도 데이터 허용 (로그인 없이 지도 사용)
+                .requestMatchers("/routes/**").permitAll()
 
-                        // 그 외 모든 요청은 인증 필요
-                        .anyRequest().authenticated()
-                )
-                .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                // 5. 그 외 모든 요청은 인증 필요
+                .anyRequest().authenticated()
+            )
+            .authenticationProvider(authenticationProvider())
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
-        // H2 Console 프레임 허용
+        // H2 Console 프레임 허용 (개발용)
         http.headers(headers -> headers.frameOptions(frame -> frame.disable()));
 
         return http.build();
