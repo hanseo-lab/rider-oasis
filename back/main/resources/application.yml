@@ -2,28 +2,26 @@ spring:
   application:
     name: rider-oasis
 
-  # H2 Database Configuration
+  # Database Configuration (Supabase PostgreSQL)
   datasource:
-    url: jdbc:h2:mem:rideroasis
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
-
-  # H2 Console (for development)
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
+    # 사용자님의 프로젝트 ID(wyxtvpsnkietlbfxlins)가 적용된 주소입니다.
+    url: jdbc:postgresql://db.wyxtvpsnkietlbfxlins.supabase.co:5432/postgres
+    username: postgres
+    # ⚠️ 중요: 아래 작은따옴표('') 사이에 Supabase DB 비밀번호를 꼭 입력해주세요!
+    password: 'Puremay0826@'
+    driver-class-name: org.postgresql.Driver
 
   # JPA Configuration
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      # create-drop은 매번 데이터를 날리므로, update로 변경했습니다.
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
         format_sql: true
-        dialect: org.hibernate.dialect.H2Dialect
+        # PostgreSQL 방언으로 변경
+        dialect: org.hibernate.dialect.PostgreSQLDialect
 
   # Jackson (JSON)
   jackson:
@@ -36,7 +34,7 @@ server:
   servlet:
     context-path: /api
 
-# JWT Configuration (HS512 requires at least 512 bits = 64 bytes)
+# JWT Configuration
 jwt:
   secret: rider-oasis-jwt-secret-key-for-hs512-must-be-very-long-at-least-64-characters-or-512-bits-gyeonggi-shade-road-2024
   expiration: 86400000  # 24 hours in milliseconds
