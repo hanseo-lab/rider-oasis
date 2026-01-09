@@ -29,11 +29,24 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // 401 에러(인증 실패)가 떴을 때, 로그인 페이지가 아닐 때만 리다이렉트 (무한 루프 방지)
-    if (error.response?.status === 401 && window.location.pathname !== '/login') {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
+    // 401 에러(인증 실패) 처리
+    if (error.response?.status === 401) {
+      // 공개 페이지 목록 (로그인 없이 접근 가능)
+      const publicPaths = ['/', '/route-search', '/community', '/login', '/signup'];
+      const isPublicPath = publicPaths.some(path => 
+        window.location.pathname === path || window.location.pathname.startsWith(path + '/')
+      );
+
+      // 공개 페이지가 아니고, 로그인/회원가입 페이지가 아닐 때만 리다이렉트
+      if (!isPublicPath && window.location.pathname !== '/login' && window.location.pathname !== '/signup') {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+      } else {
+        // 공개 페이지에서는 토큰만 제거하고 리다이렉트하지 않음
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+      }
     }
     return Promise.reject(error);
   }

@@ -143,9 +143,17 @@ export default function MainMapPage() {
 
   const center: [number, number] = [37.2636, 127.0286];
 
-  // 사용자 설정 로드
+  // 사용자 설정 로드 (로그인한 경우만)
   useEffect(() => {
     async function loadUserSettings() {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        // 로그인하지 않은 경우 현재 월 기준으로 자동 판단
+        const month = new Date().getMonth() + 1;
+        setSeasonMode((month >= 11 || month <= 3) ? 'WINTER' : 'SUMMER');
+        return;
+      }
+
       try {
         const userInfo = await userAPI.getMyInfo();
         let actualMode = userInfo.seasonMode;

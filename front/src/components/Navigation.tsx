@@ -8,23 +8,41 @@ import type { SeasonMode } from '../types/user';
 export default function Navigation() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, logout } = useAuthStore();
+  const { user, logout, isAuthenticated } = useAuthStore();
   const [seasonMode, setSeasonMode] = useState<SeasonMode>('AUTO');
 
   useEffect(() => {
-    loadSeasonMode();
-  }, []);
+    // 로그인한 사용자만 계절 모드 로드
+    if (isAuthenticated) {
+      loadSeasonMode();
+    } else {
+      // 로그인하지 않은 경우 현재 월 기준으로 자동 판단
+      const month = new Date().getMonth() + 1;
+      setSeasonMode((month >= 11 || month <= 3) ? 'WINTER' : 'SUMMER');
+    }
+  }, [isAuthenticated]);
 
   const loadSeasonMode = async () => {
+    if (!isAuthenticated) return;
+    
     try {
       const userInfo = await userAPI.getMyInfo();
       setSeasonMode(userInfo.seasonMode);
     } catch (error) {
       console.error('계절 모드 로딩 실패:', error);
+      // 에러 발생 시 현재 월 기준으로 자동 판단
+      const month = new Date().getMonth() + 1;
+      setSeasonMode((month >= 11 || month <= 3) ? 'WINTER' : 'SUMMER');
     }
   };
 
   const handleSeasonToggle = async () => {
+    if (!isAuthenticated) {
+      // 로그인하지 않은 경우 로그인 페이지로 이동
+      navigate('/login');
+      return;
+    }
+
     const modes: SeasonMode[] = ['AUTO', 'SUMMER', 'WINTER'];
     const currentIndex = modes.indexOf(seasonMode);
     const nextMode = modes[(currentIndex + 1) % modes.length];
@@ -111,18 +129,30 @@ export default function Navigation() {
                 </span>
               </button>
 
-              <div className="flex items-center gap-2 text-gray-300">
-                <User className="w-4 h-4" />
-                <span className="text-sm">{user?.username}</span>
-              </div>
+              {isAuthenticated ? (
+                <>
+                  <div className="flex items-center gap-2 text-gray-300">
+                    <User className="w-4 h-4" />
+                    <span className="text-sm">{user?.username}</span>
+                  </div>
 
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
-              >
-                <LogOut className="w-4 h-4" />
-                <span className="text-sm">로그아웃</span>
-              </button>
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span className="text-sm">로그아웃</span>
+                  </button>
+                </>
+              ) : (
+                <Link
+                  to="/login"
+                  className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+                >
+                  <User className="w-4 h-4" />
+                  <span className="text-sm">로그인</span>
+                </Link>
+              )}
             </div>
           </div>
         </div>

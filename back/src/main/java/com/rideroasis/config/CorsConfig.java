@@ -1,27 +1,42 @@
 package com.rideroasis.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 @Configuration
 public class CorsConfig {
 
+    @Value("${cors.allowed-origins:}")
+    private String allowedOrigins;
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // 프론트엔드 개발 서버 허용 (모든 localhost 포트)
-        configuration.setAllowedOriginPatterns(Arrays.asList(
-            "http://localhost:*",
-            "http://127.0.0.1:*"
-        ));
+        List<String> originPatterns = new ArrayList<>();
+        
+        // 개발 환경: localhost 허용
+        originPatterns.add("http://localhost:*");
+        originPatterns.add("http://127.0.0.1:*");
+        
+        // 프로덕션 환경: Vercel 도메인 허용
+        if (allowedOrigins != null && !allowedOrigins.isEmpty()) {
+            originPatterns.addAll(Arrays.asList(allowedOrigins.split(",")));
+        } else {
+            // 환경 변수가 없으면 기본적으로 Vercel 패턴 허용
+            originPatterns.add("https://*.vercel.app");
+            originPatterns.add("https://*.vercel.app/*");
+        }
 
+        configuration.setAllowedOriginPatterns(originPatterns);
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);

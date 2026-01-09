@@ -33,11 +33,22 @@ export default function RouteSearchPage() {
   }, []);
 
   const loadSeasonMode = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      // 로그인하지 않은 경우 현재 월 기준으로 자동 판단
+      const month = new Date().getMonth() + 1;
+      setSeasonMode((month >= 11 || month <= 3) ? 'WINTER' : 'SUMMER');
+      return;
+    }
+
     try {
       const userInfo = await userAPI.getMyInfo();
       setSeasonMode(userInfo.seasonMode);
     } catch (error) {
       console.error('계절 모드 로딩 실패:', error);
+      // 에러 발생 시 현재 월 기준으로 자동 판단
+      const month = new Date().getMonth() + 1;
+      setSeasonMode((month >= 11 || month <= 3) ? 'WINTER' : 'SUMMER');
     }
   };
 
