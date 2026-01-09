@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { authAPI } from '../api/auth';
 import { useAuthStore } from '../store/authStore';
-import { Lock, User, Sun, Snowflake, MapPin } from 'lucide-react';
+import { Lock, User, Sun, Snowflake, MapPin, ArrowLeft } from 'lucide-react';
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
@@ -36,6 +36,15 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen relative overflow-hidden flex items-center justify-center p-4">
+      {/* 홈으로 가기 버튼 */}
+      <Link
+        to="/"
+        className="absolute top-6 left-6 text-white/80 hover:text-white flex items-center gap-2 transition-colors z-50"
+      >
+        <ArrowLeft className="w-5 h-5" />
+        <span className="font-medium">홈으로</span>
+      </Link>
+
       {/* 사계절 공존 배경 */}
       <div className="absolute inset-0 bg-gradient-to-br from-orange-500 via-green-500 to-blue-500 opacity-20"></div>
       <div className="absolute inset-0 bg-gradient-to-tl from-cyan-400 via-blue-600 to-purple-700 opacity-20"></div>
@@ -77,7 +86,7 @@ export default function LoginPage() {
           {/* 슬로건 */}
           <div className="flex items-center justify-center gap-2 text-gray-300 text-sm">
             <Sun className="w-4 h-4 text-orange-400" />
-            <span>4계절 내내 안전한 길</span>
+            <span>폭염엔 시원한 길</span>
             <span className="text-gray-600">•</span>
             <Snowflake className="w-4 h-4 text-blue-400" />
             <span>한파엔 안전한 길</span>
