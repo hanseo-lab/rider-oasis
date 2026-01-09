@@ -23,12 +23,12 @@ public class AuthController {
         try {
             AuthResponse response = authService.signup(request);
             return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(ApiResponse.success("회원가입 성공", response));
+                    .status(HttpStatus.CREATED)
+                    .body(ApiResponse.success("회원가입 성공", response));
         } catch (RuntimeException e) {
             return ResponseEntity
-                .badRequest()
-                .body(ApiResponse.error(e.getMessage()));
+                    .badRequest()
+                    .body(ApiResponse.error(e.getMessage()));
         }
     }
 
@@ -37,10 +37,18 @@ public class AuthController {
         try {
             AuthResponse response = authService.login(request);
             return ResponseEntity.ok(ApiResponse.success("로그인 성공", response));
+        } catch (org.springframework.security.authentication.BadCredentialsException e) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error("비밀번호가 일치하지 않습니다."));
+        } catch (org.springframework.security.core.userdetails.UsernameNotFoundException e) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error("이메일 또는 비밀번호를 확인해주세요. (" + e.getMessage() + ")"));
         } catch (RuntimeException e) {
             return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
-                .body(ApiResponse.error("로그인 실패: " + e.getMessage()));
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error("로그인 실패: " + e.getMessage()));
         }
     }
 

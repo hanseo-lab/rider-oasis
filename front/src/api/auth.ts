@@ -8,7 +8,7 @@ export interface SignupRequest {
 }
 
 export interface LoginRequest {
-  username: string;
+  email: string;
   password: string;
 }
 

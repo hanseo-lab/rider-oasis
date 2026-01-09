@@ -36,57 +36,53 @@ public class AuthService {
 
         // 사용자 생성
         User user = User.builder()
-            .username(request.getUsername())
-            .email(request.getEmail())
-            .password(passwordEncoder.encode(request.getPassword()))
-            .nickname(request.getNickname() != null ? request.getNickname() : request.getUsername())
-            .role(User.Role.RIDER)
-            .build();
+                .username(request.getUsername())
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .nickname(request.getNickname() != null ? request.getNickname() : request.getUsername())
+                .role(User.Role.RIDER)
+                .build();
 
         user = userRepository.save(user);
 
         // JWT 토큰 생성
         Authentication authentication = authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(
-                request.getUsername(),
-                request.getPassword()
-            )
-        );
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail(),
+                        request.getPassword()));
 
         String token = tokenProvider.generateToken(authentication);
 
         return AuthResponse.builder()
-            .token(token)
-            .type("Bearer")
-            .userId(user.getId())
-            .username(user.getUsername())
-            .email(user.getEmail())
-            .role(user.getRole().name())
-            .build();
+                .token(token)
+                .type("Bearer")
+                .userId(user.getId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .role(user.getRole().name())
+                .build();
     }
 
     public AuthResponse login(LoginRequest request) {
         Authentication authentication = authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(
-                request.getUsername(),
-                request.getPassword()
-            )
-        );
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail(),
+                        request.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         String token = tokenProvider.generateToken(authentication);
 
-        User user = userRepository.findByUsername(request.getUsername())
-            .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 
         return AuthResponse.builder()
-            .token(token)
-            .type("Bearer")
-            .userId(user.getId())
-            .username(user.getUsername())
-            .email(user.getEmail())
-            .role(user.getRole().name())
-            .build();
+                .token(token)
+                .type("Bearer")
+                .userId(user.getId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .role(user.getRole().name())
+                .build();
     }
 }
