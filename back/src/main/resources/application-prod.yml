@@ -1,35 +1,26 @@
-# Production Configuration (Oracle/MySQL)
+# Production Configuration (Supabase/PostgreSQL)
 spring:
-  # Uncomment and configure for Oracle
-  # datasource:
-  #   url: jdbc:oracle:thin:@localhost:1521:xe
-  #   driver-class-name: oracle.jdbc.OracleDriver
-  #   username: your_username
-  #   password: your_password
-
-  # Uncomment and configure for MySQL
-  # datasource:
-  #   url: jdbc:mysql://localhost:3306/rideroasis?useSSL=false&serverTimezone=UTC
-  #   driver-class-name: com.mysql.cj.jdbc.Driver
-  #   username: your_username
-  #   password: your_password
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
 
   jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: validate  # Use 'validate' or 'none' in production
+      ddl-auto: update # Automatically update schema (create tables if missing)
     show-sql: false
     properties:
       hibernate:
-        # For Oracle
-        # dialect: org.hibernate.dialect.Oracle12cDialect
-        # For MySQL
-        # dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: false
 
 # CORS Configuration
 cors:
-  allowed-origins: ${CORS_ALLOWED_ORIGINS:https://*.vercel.app}
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:https://rider-oasis.vercel.app}
 
 logging:
   level:
     com.rideroasis: INFO
     org.springframework.security: WARN
+
