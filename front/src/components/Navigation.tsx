@@ -64,7 +64,7 @@ export default function Navigation() {
     { path: '/', label: '지도', icon: Map },
     { path: '/route-search', label: '경로 탐색', icon: NavIcon },
     { path: '/community', label: '커뮤니티', icon: MessageSquare },
-    { path: '/my-page', label: '마이페이지', icon: User },
+    ...(isAuthenticated ? [{ path: '/my-page', label: '마이페이지', icon: User }] : []),
   ];
 
   const styles = {

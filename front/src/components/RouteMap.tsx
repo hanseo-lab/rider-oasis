@@ -90,7 +90,7 @@ export default function RouteMap({ route, seasonMode }: RouteMapProps) {
         <MapContainer
           center={center}
           zoom={13}
-          style={{ height: '100%', width: '100%' }}
+          className="w-full h-full z-0"
         >
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
