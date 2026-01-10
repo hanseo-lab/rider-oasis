@@ -176,7 +176,7 @@ export default function RouteSearchPage() {
 
       <div className="max-w-7xl mx-auto p-4">
         {step === 'search' ? (
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="max-w-2xl mx-auto space-y-6">
             {/* 왼쪽: 검색 폼 */}
             <div className="space-y-6">
               {/* 출발지 */}
@@ -274,13 +274,6 @@ export default function RouteSearchPage() {
               )}
             </div>
 
-            {/* 오른쪽: 지도 미리보기 */}
-            <div className="bg-gray-800 rounded-xl p-4 shadow-xl">
-              <h3 className="text-lg font-bold text-white mb-4">지도에서 선택</h3>
-              <div className="bg-gray-700 rounded-lg h-[500px] flex items-center justify-center text-gray-400">
-                <p>지도 클릭으로 위치 설정 (구현 예정)</p>
-              </div>
-            </div>
           </div>
         ) : (
           <div className="space-y-6">
