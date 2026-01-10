@@ -51,22 +51,22 @@ public class Route {
 
     // 경로 통계
     @Column(nullable = false)
-    private Double distance;  // 거리 (km)
+    private Double distance; // 거리 (km)
 
     @Column(nullable = false)
-    private Integer estimatedTime;  // 예상 시간 (분)
-
-    @Column(nullable = false)
-    @Builder.Default
-    private Double shadeRatio = 0.0;  // 그늘 비율 (0.0 ~ 1.0)
+    private Integer estimatedTime; // 예상 시간 (분)
 
     @Column(nullable = false)
     @Builder.Default
-    private Double heatExposure = 0.0;  // 폭염 노출도 (0.0 ~ 1.0)
+    private Double shadeRatio = 0.0; // 그늘 비율 (0.0 ~ 1.0)
 
     @Column(nullable = false)
     @Builder.Default
-    private Integer shelterCount = 0;  // 경로 상 대피시설 수
+    private Double heatExposure = 0.0; // 폭염 노출도 (0.0 ~ 1.0)
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Integer shelterCount = 0; // 경로 상 대피시설 수
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -86,8 +86,10 @@ public class Route {
     }
 
     public enum RouteType {
-        SHORTEST,           // 최단 경로
-        SHADE_OPTIMIZED,    // 그늘 최적화 경로
-        SHELTER_OPTIMIZED   // 대피시설 최적화 경로
+        SHORTEST, // 최단 경로 (Legacy)
+        SHADE_OPTIMIZED, // 그늘 최적화 경로
+        SHELTER_OPTIMIZED, // 대피시설 최적화 경로
+        FASTEST, // 최단/최속 경로 (TMAP)
+        COMFORT // 편안한 경로 (TMAP)
     }
 }

@@ -44,5 +44,10 @@ jwt:
 logging:
   level:
     com.rideroasis: DEBUG
+    
+# TMAP API
+tmap:
+  api:
+    key: ${TMAP_API_KEY}
     org.springframework.security: DEBUG
     org.hibernate.SQL: DEBUG

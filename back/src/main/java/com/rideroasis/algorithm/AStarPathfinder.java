@@ -25,12 +25,12 @@ public class AStarPathfinder {
     public static class Node implements Comparable<Node> {
         double lat;
         double lng;
-        double g;  // 시작점부터의 실제 비용
-        double h;  // 목표까지의 추정 비용 (휴리스틱)
-        double f;  // g + h
+        double g; // 시작점부터의 실제 비용
+        double h; // 목표까지의 추정 비용 (휴리스틱)
+        double f; // g + h
         Node parent;
-        double shadeScore;  // 그늘 점수 (높을수록 좋음)
-        double heatScore;   // 폭염 점수 (낮을수록 좋음)
+        double shadeScore; // 그늘 점수 (높을수록 좋음)
+        double heatScore; // 폭염 점수 (낮을수록 좋음)
 
         @Override
         public int compareTo(Node other) {
@@ -39,8 +39,10 @@ public class AStarPathfinder {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o)
+                return true;
+            if (o == null || getClass() != o.getClass())
+                return false;
             Node node = (Node) o;
             return Math.abs(lat - node.lat) < 0.0001 && Math.abs(lng - node.lng) < 0.0001;
         }
@@ -63,30 +65,30 @@ public class AStarPathfinder {
 
     /**
      * A* 알고리즘으로 최적 경로 찾기
+     * 
      * @param seasonMode 계절 모드 (SUMMER: 그늘=안전, WINTER: 그늘=위험)
      */
     public PathResult findOptimalPath(
-        double startLat, double startLng,
-        double endLat, double endLng,
-        boolean preferShade,
-        boolean avoidHeat,
-        SeasonMode seasonMode
-    ) {
+            double startLat, double startLng,
+            double endLat, double endLng,
+            boolean preferShade,
+            boolean avoidHeat,
+            SeasonMode seasonMode) {
         // AUTO 모드인 경우 현재 월로 계절 판단
         SeasonMode actualMode = seasonMode;
         if (seasonMode == SeasonMode.AUTO) {
             int month = java.time.LocalDateTime.now().getMonthValue();
-            actualMode = (month >= 6 && month <= 8) ? SeasonMode.SUMMER :
-                        (month == 12 || month <= 2) ? SeasonMode.WINTER : SeasonMode.SUMMER;
+            actualMode = (month >= 6 && month <= 8) ? SeasonMode.SUMMER
+                    : (month == 12 || month <= 2) ? SeasonMode.WINTER : SeasonMode.SUMMER;
         }
         PriorityQueue<Node> openSet = new PriorityQueue<>();
         Set<Node> closedSet = new HashSet<>();
 
         // 시작 노드
         Node startNode = new Node(
-            startLat, startLng,
-            0, 0, 0, null,
-            0.5, 0.5  // 기본 점수
+                startLat, startLng,
+                0, 0, 0, null,
+                0.5, 0.5 // 기본 점수
         );
         startNode.h = heuristic(startLat, startLng, endLat, endLng);
         startNode.f = startNode.g + startNode.h;
@@ -124,17 +126,17 @@ public class AStarPathfinder {
 
                 if (actualMode == SeasonMode.WINTER) {
                     // 겨울: 그늘 = 블랙아이스 위험 구간
-                    weight *= (1.0 + neighbor.shadeScore * 2.0);  // 그늘이 많을수록 비용 증가 (위험!)
+                    weight *= (1.0 + neighbor.shadeScore * 2.0); // 그늘이 많을수록 비용 증가 (위험!)
                     // 경사도가 높으면 더 위험
                     double slopeRisk = climateAPI.getSlopeRisk(neighbor.lat, neighbor.lng);
-                    weight *= (1.0 + slopeRisk * 4.0);  // 경사도 높으면 비용 대폭 증가
+                    weight *= (1.0 + slopeRisk * 4.0); // 경사도 높으면 비용 대폭 증가
                 } else {
                     // 여름: 그늘 = 안전지대
                     if (preferShade) {
-                        weight *= (2.0 - neighbor.shadeScore);  // 그늘이 많을수록 비용 감소
+                        weight *= (2.0 - neighbor.shadeScore); // 그늘이 많을수록 비용 감소
                     }
                     if (avoidHeat) {
-                        weight *= (1.0 + neighbor.heatScore);   // 폭염이 심할수록 비용 증가
+                        weight *= (1.0 + neighbor.heatScore); // 폭염이 심할수록 비용 증가
                     }
                 }
 
@@ -179,8 +181,8 @@ public class AStarPathfinder {
         double dLng = Math.toRadians(lng2 - lng1);
 
         double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                   Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
-                   Math.sin(dLng / 2) * Math.sin(dLng / 2);
+                Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
+                        Math.sin(dLng / 2) * Math.sin(dLng / 2);
 
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return R * c;
@@ -189,15 +191,16 @@ public class AStarPathfinder {
     /**
      * 이웃 노드 생성 (8방향)
      */
-    private List<Node> generateNeighbors(Node current, double endLat, double endLng, boolean preferShade, boolean avoidHeat) {
+    private List<Node> generateNeighbors(Node current, double endLat, double endLng, boolean preferShade,
+            boolean avoidHeat) {
         List<Node> neighbors = new ArrayList<>();
-        double step = 0.005;  // 약 500m
+        double step = 0.001; // 약 100m (정밀도 향상)
 
         // 8방향 탐색
         int[][] directions = {
-            {-1, -1}, {-1, 0}, {-1, 1},
-            {0, -1},           {0, 1},
-            {1, -1},  {1, 0},  {1, 1}
+                { -1, -1 }, { -1, 0 }, { -1, 1 },
+                { 0, -1 }, { 0, 1 },
+                { 1, -1 }, { 1, 0 }, { 1, 1 }
         };
 
         for (int[] dir : directions) {
@@ -214,10 +217,9 @@ public class AStarPathfinder {
             double heatScore = calculateHeatScore(newLat, newLng);
 
             Node neighbor = new Node(
-                newLat, newLng,
-                0, 0, 0, null,
-                shadeScore, heatScore
-            );
+                    newLat, newLng,
+                    0, 0, 0, null,
+                    shadeScore, heatScore);
 
             neighbors.add(neighbor);
         }
@@ -275,7 +277,7 @@ public class AStarPathfinder {
 
         double shadeRatio = nodeCount > 0 ? totalShade / nodeCount : 0.5;
         double heatExposure = nodeCount > 0 ? totalHeat / nodeCount : 0.5;
-        int estimatedTime = (int) (totalDistance * 3);  // 평균 20km/h 가정
+        int estimatedTime = (int) (totalDistance * 3); // 평균 20km/h 가정
 
         return new PathResult(path, totalDistance, shadeRatio, heatExposure, estimatedTime);
     }
