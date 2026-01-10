@@ -24,12 +24,17 @@ public class RouteController {
         try {
             RouteResponse response = routeService.createRoute(request);
             return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(ApiResponse.success("경로 생성 성공", response));
+                    .status(HttpStatus.CREATED)
+                    .body(ApiResponse.success("경로 생성 성공", response));
         } catch (RuntimeException e) {
+            if (e.getMessage().contains("사용자를 찾을 수 없습니다")) {
+                return ResponseEntity
+                        .status(HttpStatus.UNAUTHORIZED)
+                        .body(ApiResponse.error(e.getMessage()));
+            }
             return ResponseEntity
-                .badRequest()
-                .body(ApiResponse.error(e.getMessage()));
+                    .badRequest()
+                    .body(ApiResponse.error(e.getMessage()));
         }
     }
 
@@ -40,8 +45,8 @@ public class RouteController {
             return ResponseEntity.ok(ApiResponse.success(routes));
         } catch (RuntimeException e) {
             return ResponseEntity
-                .badRequest()
-                .body(ApiResponse.error(e.getMessage()));
+                    .badRequest()
+                    .body(ApiResponse.error(e.getMessage()));
         }
     }
 
@@ -52,8 +57,8 @@ public class RouteController {
             return ResponseEntity.ok(ApiResponse.success(route));
         } catch (RuntimeException e) {
             return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(ApiResponse.error(e.getMessage()));
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(ApiResponse.error(e.getMessage()));
         }
     }
 
@@ -64,8 +69,8 @@ public class RouteController {
             return ResponseEntity.ok(ApiResponse.success("경로 삭제 성공", null));
         } catch (RuntimeException e) {
             return ResponseEntity
-                .badRequest()
-                .body(ApiResponse.error(e.getMessage()));
+                    .badRequest()
+                    .body(ApiResponse.error(e.getMessage()));
         }
     }
 
@@ -76,8 +81,8 @@ public class RouteController {
             return ResponseEntity.ok(ApiResponse.success("즐겨찾기 토글 성공", route));
         } catch (RuntimeException e) {
             return ResponseEntity
-                .badRequest()
-                .body(ApiResponse.error(e.getMessage()));
+                    .badRequest()
+                    .body(ApiResponse.error(e.getMessage()));
         }
     }
 }

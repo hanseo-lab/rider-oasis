@@ -81,7 +81,7 @@ export default function SignupPage() {
         <form onSubmit={handleSignup} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
-              사용자명
+              성함
             </label>
             <div className="relative">
               <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -91,7 +91,7 @@ export default function SignupPage() {
                 value={formData.username}
                 onChange={handleChange}
                 className="w-full pl-10 pr-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
-                placeholder="사용자명 (3자 이상)"
+                placeholder="성함 (3자 이상)"
                 required
                 minLength={3}
               />
