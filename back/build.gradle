@@ -34,8 +34,7 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.3'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3'
 
-    // H2 Database (development)
-    runtimeOnly 'com.h2database:h2'
+
 
     // Oracle & MySQL drivers (for future migration)
     runtimeOnly 'com.oracle.database.jdbc:ojdbc8:23.3.0.23.09'

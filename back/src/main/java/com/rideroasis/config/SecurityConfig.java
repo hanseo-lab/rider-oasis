@@ -53,16 +53,13 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/h2-console/**").permitAll()
+
                         .requestMatchers("/community/posts/**").permitAll() // 커뮤니티 읽기는 모두 허용
                         .requestMatchers("/routes/**").permitAll() // 경로 탐색 허용 (임시)
                         .requestMatchers("/actuator/**").permitAll() // 상태 확인 허용
                         .anyRequest().authenticated())
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
-        // H2 Console 프레임 허용
-        http.headers(headers -> headers.frameOptions(frame -> frame.disable()));
 
         return http.build();
     }
