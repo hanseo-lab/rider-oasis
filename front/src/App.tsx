@@ -39,12 +39,7 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
 
 // 🧭 기본 레이아웃 (상단 네비게이션 바 포함)
 function Layout() {
-  return (
-    <>
-      <Navigation />
-      <Outlet />
-    </>
-  );
+  return <Navigation />;
 }
 
 function App() {
