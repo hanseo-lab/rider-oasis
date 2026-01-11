@@ -1,4 +1,4 @@
-﻿package com.rideroasis.service;
+package com.rideroasis.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -39,19 +39,17 @@ public class RouteService {
         double shadeRatio = 0.0;
         double heatExposure = 0.0;
 
-        // FASTEST or COMFORT mode uses TMAP (actual roads)
         if (request.getRouteType() == Route.RouteType.FASTEST || request.getRouteType() == Route.RouteType.COMFORT) {
             try {
                 TMapService.TMapRouteResult tMapResult = tMapService.getPedestrianRoute(
                         request.getStartLat(), request.getStartLng(),
-                        request.get EndLat(), request.getEndLng());
+                        request.getEndLat(), request.getEndLng());
 
                 geoJson = convertTMapPathToGeoJson(tMapResult.getPath());
                 distance = tMapResult.getTotalDistance();
                 estimatedTime = tMapResult.getTotalTime();
 
             } catch (Exception e) {
-                // TMAP failure fallback to A*
                 AStarPathfinder.PathResult pathResult = pathfinder.findOptimalPath(
                         request.getStartLat(), request.getStartLng(),
                         request.getEndLat(), request.getEndLng(),
@@ -63,7 +61,6 @@ public class RouteService {
                 heatExposure = pathResult.getHeatExposure();
             }
         } else {
-            // SHADE_OPTIMIZED uses existing A* algorithm
             AStarPathfinder.PathResult pathResult = pathfinder.findOptimalPath(
                     request.getStartLat(), request.getStartLng(),
                     request.getEndLat(), request.getEndLng(),
@@ -77,9 +74,8 @@ public class RouteService {
             heatExposure = pathResult.getHeatExposure();
         }
 
-        // Create Route entity
         Route route = Route.builder()
-                .user(user.getId() != null ? user : null) // Only set user if ID exists
+                .user(user.getId() != null ? user : null)
                 .routeName(request.getRouteName())
                 .startLat(request.getStartLat())
                 .startLng(request.getStartLng())
@@ -92,15 +88,14 @@ public class RouteService {
                 .estimatedTime(estimatedTime)
                 .shadeRatio(shadeRatio)
                 .heatExposure(heatExposure)
-                .shelterCount(0) // TODO: Calculate shelters along route
+                .shelterCount(0)
                 .routeType(request.getRouteType())
                 .build();
 
-        // Only logged-in users save to DB
         if (user != null && user.getId() != null) {
             route = routeRepository.save(route);
         }
-        
+
         return RouteResponse.fromEntity(route);
     }
 
@@ -116,12 +111,11 @@ public class RouteService {
     @Transactional(readOnly = true)
     public RouteResponse getRouteById(Long routeId) {
         Route route = routeRepository.findById(routeId)
-                .orElseThrow(() -> new RuntimeException("Route not found."));
+                .orElseThrow(() -> new RuntimeException("Route not found"));
 
-        // Permission check
         User user = getCurrentUser();
         if (!route.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("Access denied.");
+            throw new RuntimeException("Access denied");
         }
 
         return RouteResponse.fromEntity(route);
@@ -130,11 +124,11 @@ public class RouteService {
     @Transactional
     public void deleteRoute(Long routeId) {
         Route route = routeRepository.findById(routeId)
-                .orElseThrow(() -> new RuntimeException("Route not found."));
+                .orElseThrow(() -> new RuntimeException("Route not found"));
 
         User user = getCurrentUser();
         if (!route.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("Access denied.");
+            throw new RuntimeException("Access denied");
         }
 
         routeRepository.delete(route);
@@ -143,11 +137,11 @@ public class RouteService {
     @Transactional
     public RouteResponse toggleFavorite(Long routeId) {
         Route route = routeRepository.findById(routeId)
-                .orElseThrow(() -> new RuntimeException("Route not found."));
+                .orElseThrow(() -> new RuntimeException("Route not found"));
 
         User user = getCurrentUser();
         if (!route.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("Access denied.");
+            throw new RuntimeException("Access denied");
         }
 
         route.setIsFavorite(!route.getIsFavorite());
@@ -160,7 +154,6 @@ public class RouteService {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()
                 || "anonymousUser".equals(authentication.getPrincipal())) {
-            // Return default User object for anonymous users (ID is null)
             return User.builder()
                     .username("anonymous")
                     .email("anonymous@rideroasis.com")
@@ -171,7 +164,6 @@ public class RouteService {
         }
         String emailOrUsername = authentication.getName();
 
-        // Try email first, then username
         return userRepository.findByEmail(emailOrUsername)
                 .orElseGet(() -> userRepository.findByUsername(emailOrUsername)
                         .orElseThrow(() -> new RuntimeException("User not found: " + emailOrUsername)));

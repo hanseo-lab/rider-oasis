@@ -1,4 +1,4 @@
-﻿package com.rideroasis.security;
+package com.rideroasis.security;
 
 import com.rideroasis.entity.User;
 import com.rideroasis.repository.UserRepository;
@@ -18,15 +18,12 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String emailOrUsername) throws UsernameNotFoundException {
-        // Try email first
         java.util.Optional<User> user = userRepository.findByEmail(emailOrUsername);
 
-        // If not found by email, try username
         if (user.isEmpty()) {
             user = userRepository.findByUsername(emailOrUsername);
         }
 
-        return user.orElseThrow(
-                () -> new UsernameNotFoundException("User not found with email/username: " + emailOrUsername));
+        return user.orElseThrow(() -> new UsernameNotFoundException("User not found: " + emailOrUsername));
     }
 }
