@@ -23,12 +23,16 @@ export interface AuthResponse {
 
 export const authAPI = {
   signup: async (data: SignupRequest) => {
-    const response = await api.post<{ success: boolean; data: AuthResponse }>('/auth/signup', data);
+    const response = await api.post<any>('/auth/signup', data);
+    console.log('Signup response:', response.data);
+    // 백엔드가 { success: true, message: "...", data: AuthResponse } 형태로 응답
     return response.data.data;
   },
 
   login: async (data: LoginRequest) => {
-    const response = await api.post<{ success: boolean; data: AuthResponse }>('/auth/login', data);
+    const response = await api.post<any>('/auth/login', data);
+    console.log('Login response:', response.data);
+    // 백엔드가 { success: true, message: "로그인 성공", data: AuthResponse } 형태로 응답
     return response.data.data;
   },
 

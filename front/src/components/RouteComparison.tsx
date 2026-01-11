@@ -28,24 +28,36 @@ export default function RouteComparison({
     const distanceDiff = route.distance - shortestRoute.distance;
     const timeDiff = route.estimatedTime - shortestRoute.estimatedTime;
 
+    // 색상별 클래스 정의
+    const ringColor = color === 'blue' ? 'ring-blue-500' : color === 'orange' ? 'ring-orange-500' : 'ring-green-500';
+    const bgColor = color === 'blue' ? 'bg-blue-500' : color === 'orange' ? 'bg-orange-500' : 'bg-green-500';
+    const shadeBarColor = isWinter ? 'bg-orange-500' : 'bg-green-500';
+    const heatBarColor = isWinter ? 'bg-amber-500' : 'bg-red-500';
+    const badgeBg = isWinter ? 'bg-orange-500/20' : 'bg-green-500/20';
+    const badgeText = isWinter ? 'text-orange-400' : 'text-green-400';
+
     return (
       <div
         onClick={() => onSelectRoute(route)}
         className={`
-          relative bg-gray-800 rounded-xl p-6 cursor-pointer transition-all
-          ${isSelected ? `ring-4 ring-${color}-500 shadow-2xl` : 'hover:shadow-xl'}
+          relative bg-gray-800 rounded-xl p-6 cursor-pointer transition-all duration-200
+          ${isSelected
+            ? `ring-4 ${ringColor} shadow-2xl scale-105 transform`
+            : 'hover:shadow-xl hover:scale-102 hover:bg-gray-750'
+          }
+          active:scale-98
         `}
       >
         {/* 선택 표시 */}
         {isSelected && (
-          <div className={`absolute top-4 right-4 w-8 h-8 bg-${color}-500 rounded-full flex items-center justify-center`}>
+          <div className={`absolute top-4 right-4 w-8 h-8 ${bgColor} rounded-full flex items-center justify-center`}>
             <Check className="w-5 h-5 text-white" />
           </div>
         )}
 
         {/* 제목 */}
         <div className="flex items-center gap-3 mb-4">
-          <div className={`w-12 h-12 bg-${color}-500 rounded-full flex items-center justify-center`}>
+          <div className={`w-12 h-12 ${bgColor} rounded-full flex items-center justify-center`}>
             <Icon className="w-6 h-6 text-white" />
           </div>
           <div>
@@ -97,7 +109,7 @@ export default function RouteComparison({
             <div className="flex items-center gap-2">
               <div className="w-24 h-2 bg-gray-700 rounded-full overflow-hidden">
                 <div
-                  className={`h-full ${isWinter ? 'bg-orange-500' : 'bg-green-500'}`}
+                  className={`h-full ${shadeBarColor}`}
                   style={{ width: `${route.shadeRatio * 100}%` }}
                 />
               </div>
@@ -117,7 +129,7 @@ export default function RouteComparison({
             <div className="flex items-center gap-2">
               <div className="w-24 h-2 bg-gray-700 rounded-full overflow-hidden">
                 <div
-                  className={`h-full ${isWinter ? 'bg-amber-500' : 'bg-red-500'}`}
+                  className={`h-full ${heatBarColor}`}
                   style={{ width: `${route.heatExposure * 100}%` }}
                 />
               </div>
@@ -141,7 +153,7 @@ export default function RouteComparison({
         {/* 추천 배지 */}
         {route.routeType === 'SHADE_OPTIMIZED' && (
           <div className="mt-4 pt-4 border-t border-gray-700">
-            <div className={`inline-flex items-center gap-2 px-3 py-1 ${isWinter ? 'bg-orange-500/20 text-orange-400' : 'bg-green-500/20 text-green-400'} rounded-full text-xs font-semibold`}>
+            <div className={`inline-flex items-center gap-2 px-3 py-1 ${badgeBg} ${badgeText} rounded-full text-xs font-semibold`}>
               {isWinter ? <AlertTriangle className="w-3 h-3" /> : <Trees className="w-3 h-3" />}
               {isWinter ? '빙판 회피 추천 경로' : '위험 회피 추천 경로'}
             </div>
