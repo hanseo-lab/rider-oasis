@@ -9,8 +9,11 @@ COPY back/ .
 # Grant execution permission
 RUN chmod +x gradlew
 
+# Validate Gradle wrapper and download dependencies
+RUN ./gradlew --version
+
 # Build the application
-RUN ./gradlew clean build -x test
+RUN ./gradlew clean build -x test --no-daemon --stacktrace
 
 # Runtime stage
 FROM eclipse-temurin:17-jre-alpine
