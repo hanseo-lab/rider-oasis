@@ -39,7 +39,7 @@ public class RouteService {
         double shadeRatio = 0.0;
         double heatExposure = 0.0;
 
-        // FASTEST 또는 COMFORT 모드는 TMAP 사용 (실제 도로)
+        // FASTEST ?�는 COMFORT 모드??TMAP ?�용 (?�제 ?�로)
         if (request.getRouteType() == Route.RouteType.FASTEST || request.getRouteType() == Route.RouteType.COMFORT) {
             try {
                 TMapService.TMapRouteResult tMapResult = tMapService.getPedestrianRoute(
@@ -51,7 +51,7 @@ public class RouteService {
                 estimatedTime = tMapResult.getTotalTime();
 
             } catch (Exception e) {
-                // TMAP 실패 시 A* 폴백
+                // TMAP ?�패 ??A* ?�백
                 AStarPathfinder.PathResult pathResult = pathfinder.findOptimalPath(
                         request.getStartLat(), request.getStartLng(),
                         request.getEndLat(), request.getEndLng(),
@@ -63,7 +63,7 @@ public class RouteService {
                 heatExposure = pathResult.getHeatExposure();
             }
         } else {
-            // SHADE_OPTIMIZED 등은 기존 A* 알고리즘 사용
+            // SHADE_OPTIMIZED ?��? 기존 A* ?�고리즘 ?�용
             AStarPathfinder.PathResult pathResult = pathfinder.findOptimalPath(
                     request.getStartLat(), request.getStartLng(),
                     request.getEndLat(), request.getEndLng(),
@@ -77,9 +77,9 @@ public class RouteService {
             heatExposure = pathResult.getHeatExposure();
         }
 
-        // Route 엔티티 생성
+        // Route ?�티???�성
         Route route = Route.builder()
-                .user(user)
+                .user(user.getId() != null ? user : null) // ID가 ?�는 ?�용?�만 ?�정
                 .routeName(request.getRouteName())
                 .startLat(request.getStartLat())
                 .startLng(request.getStartLng())
@@ -92,12 +92,15 @@ public class RouteService {
                 .estimatedTime(estimatedTime)
                 .shadeRatio(shadeRatio)
                 .heatExposure(heatExposure)
-                .shelterCount(0) // TODO: 경로 상 대피시설 수 계산
+                .shelterCount(0) // TODO: 경로 ???�?�시????계산
                 .routeType(request.getRouteType())
                 .build();
 
-        route = routeRepository.save(route);
-
+        // 로그?�한 ?�용?�만 DB???�??
+        if (user != null &amp;&amp; user.getId() != null) {
+            route = routeRepository.save(route);
+        }
+        
         return RouteResponse.fromEntity(route);
     }
 
@@ -113,12 +116,12 @@ public class RouteService {
     @Transactional(readOnly = true)
     public RouteResponse getRouteById(Long routeId) {
         Route route = routeRepository.findById(routeId)
-                .orElseThrow(() -> new RuntimeException("경로를 찾을 수 없습니다."));
+                .orElseThrow(() -> new RuntimeException("경로�?찾을 ???�습?�다."));
 
         // 권한 체크
         User user = getCurrentUser();
         if (!route.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("접근 권한이 없습니다.");
+            throw new RuntimeException("?�근 권한???�습?�다.");
         }
 
         return RouteResponse.fromEntity(route);
@@ -127,11 +130,11 @@ public class RouteService {
     @Transactional
     public void deleteRoute(Long routeId) {
         Route route = routeRepository.findById(routeId)
-                .orElseThrow(() -> new RuntimeException("경로를 찾을 수 없습니다."));
+                .orElseThrow(() -> new RuntimeException("경로�?찾을 ???�습?�다."));
 
         User user = getCurrentUser();
         if (!route.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("접근 권한이 없습니다.");
+            throw new RuntimeException("?�근 권한???�습?�다.");
         }
 
         routeRepository.delete(route);
@@ -140,11 +143,11 @@ public class RouteService {
     @Transactional
     public RouteResponse toggleFavorite(Long routeId) {
         Route route = routeRepository.findById(routeId)
-                .orElseThrow(() -> new RuntimeException("경로를 찾을 수 없습니다."));
+                .orElseThrow(() -> new RuntimeException("경로�?찾을 ???�습?�다."));
 
         User user = getCurrentUser();
         if (!route.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("접근 권한이 없습니다.");
+            throw new RuntimeException("?�근 권한???�습?�다.");
         }
 
         route.setIsFavorite(!route.getIsFavorite());
@@ -154,9 +157,24 @@ public class RouteService {
     }
 
     private User getCurrentUser() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()
+                || "anonymousUser".equals(authentication.getPrincipal())) {
+            // ?�명 ?�용?��? ?�한 기본 User 객체 반환 (ID??null)
+            return User.builder()
+                    .username("anonymous")
+                    .email("anonymous@rideroasis.com")
+                    .seasonMode(User.SeasonMode.AUTO)
+                    .preferShade(true)
+                    .avoidHeat(true)
+                    .build();
+        }
+        String emailOrUsername = authentication.getName();
+
+        // email�?먼�? 조회, ?�으�?username?�로 조회
+        return userRepository.findByEmail(emailOrUsername)
+                .orElseGet(() -> userRepository.findByUsername(emailOrUsername)
+                        .orElseThrow(() -> new RuntimeException("?�용?��? 찾을 ???�습?�다: " + emailOrUsername)));
     }
 
     private String convertToGeoJson(AStarPathfinder.PathResult pathResult) {
@@ -172,7 +190,7 @@ public class RouteService {
 
             return objectMapper.writeValueAsString(geoJson);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("GeoJSON 변환 실패", e);
+            throw new RuntimeException("GeoJSON 변???�패", e);
         }
     }
 
@@ -183,7 +201,9 @@ public class RouteService {
             geoJson.put("coordinates", path);
             return objectMapper.writeValueAsString(geoJson);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("GeoJSON 변환 실패", e);
+            throw new RuntimeException("GeoJSON 변???�패", e);
         }
     }
 }
+
+

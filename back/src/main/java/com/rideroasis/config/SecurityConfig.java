@@ -54,7 +54,16 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
 
-                        .requestMatchers("/community/posts/**").permitAll() // 커뮤니티 읽기는 모두 허용
+                        // 경로 검색: POST는 익명 허용, GET은 인증 필요 (내 경로 목록)
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/routes").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/routes").authenticated()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/routes/**").authenticated()
+
+                        // 커뮤니티: GET은 모두 허용, POST/PUT/DELETE는 인증 필요
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/community/posts/**").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/community/posts/**")
+                        .authenticated()
+
                         .requestMatchers("/actuator/**").permitAll() // 상태 확인 허용
                         .anyRequest().authenticated())
                 .authenticationProvider(authenticationProvider())

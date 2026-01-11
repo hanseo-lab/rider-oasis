@@ -17,10 +17,17 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     @Transactional
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("해당 이메일을 가진 사용자를 찾을 수 없습니다: " + email));
-
-        return user;
+    public UserDetails loadUserByUsername(String emailOrUsername) throws UsernameNotFoundException {
+        // 먼�? email�??�도
+        java.util.Optional<User> user = userRepository.findByEmail(emailOrUsername);
+        
+        // email�?찾�? 못하�?username?�로 ?�도
+        if (user.isEmpty()) {
+            user = userRepository.findByUsername(emailOrUsername);
+        }
+        
+        return user.orElseThrow(() -> 
+            new UsernameNotFoundException("?�당 ?�메???�용?�명??가�??�용?��? 찾을 ???�습?�다: " + emailOrUsername));
     }
 }
+

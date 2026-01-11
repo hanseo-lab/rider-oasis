@@ -139,9 +139,10 @@
 - **Framework**: Spring Boot 3.2.1
 - **Language**: Java 17
 - **Build Tool**: Gradle 8.5
-- **Database**: H2 (Dev), Oracle/MySQL (Prod)
+- **Database**: PostgreSQL (Supabase)
 - **Security**: Spring Security + JWT (HS512)
 - **ORM**: JPA/Hibernate
+- **Deployment**: Railway
 
 ### Data & APIs
 - 경기기후플랫폼 (Climate.gg) WFS API
@@ -181,10 +182,13 @@ server:
 
 spring:
   datasource:
-    url: jdbc:h2:mem:rideroasisdb
-  h2:
-    console:
-      enabled: true
+    url: ${SPRING_DATASOURCE_URL}  # Supabase PostgreSQL URL
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
 ```
 
 ### 2️⃣ 프론트엔드 (React)
@@ -281,11 +285,11 @@ riderOasis/
 
 | Method | Endpoint | Description | Auth Required |
 |--------|----------|-------------|---------------|
-| POST | `/api/routes` | 경로 생성 | ✅ |
-| GET | `/api/routes/{id}` | 경로 조회 | ❌ |
-
+| POST | `/api/routes` | 경로 생성 (익명 허용) | ❌ |
+| GET | `/api/routes` | 내 경로 목록 | ✅ |
+| GET | `/api/routes/{id}` | 경로 조회 | ✅ |
 | DELETE | `/api/routes/{id}` | 경로 삭제 | ✅ |
-| POST | `/api/routes/{id}/favorite` | 즐겨찾기 토글 | ✅ |
+| PATCH | `/api/routes/{id}/favorite` | 즐겨찾기 토글 | ✅ |
 
 ### 사용자 (User)
 

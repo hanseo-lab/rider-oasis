@@ -36,25 +36,33 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response: AxiosResponse) => response,
   (error: AxiosError) => {
-    // 401 에러(인증 실패) 처리
-    if (error.response?.status === 401) {
+    const status = error.response?.status;
+
+    // 401 또는 403 에러 처리
+    if (status === 401 || status === 403) {
       // 공개 페이지 목록 (로그인 없이 접근 가능)
-      // 정확한 매칭 및 하위 경로 처리를 위해 로직 개선
-      const publicPaths = ['/', '/route-search', '/community', '/login', '/signup'];
+      const publicPaths = [
+        '/',
+        '/route-search',
+        '/community',
+        '/login',
+        '/signup',
+        '/find-email',
+        '/reset-password'
+      ];
       const currentPath = window.location.pathname;
 
       const isPublicPath = publicPaths.some(path =>
         currentPath === path || (path !== '/' && currentPath.startsWith(path + '/'))
       );
 
-      // Store 상태 초기화 (로그아웃 처리) - UI 동기화를 위해 필수
-      useAuthStore.getState().logout();
-
-      // 공개 페이지가 아니고, 로그인/회원가입 페이지가 아닐 때만 리다이렉트
+      // 공개 페이지가 아닐 때만 로그아웃 및 리다이렉트
       if (!isPublicPath) {
+        // Store 상태 초기화 (로그아웃 처리)
+        useAuthStore.getState().logout();
         window.location.href = '/login';
       }
-      // 공개 페이지에서는 토큰만 제거하고(위의 logout()에서 처리됨) 리다이렉트 하지 않음
+      // 공개 페이지에서는 에러만 반환하고 리다이렉트하지 않음
     }
     return Promise.reject(error);
   }

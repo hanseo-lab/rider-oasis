@@ -35,7 +35,7 @@ server:
 
 # JWT Configuration (HS512 requires at least 512 bits = 64 bytes)
 jwt:
-  secret: rider-oasis-jwt-secret-key-for-hs512-must-be-very-long-at-least-64-characters-or-512-bits-gyeonggi-shade-road-2024
+  secret: ${JWT_SECRET:rider-oasis-jwt-secret-key-for-hs512-must-be-very-long-at-least-64-characters-or-512-bits-gyeonggi-shade-road-2024-local-dev-only}
   expiration: 86400000  # 24 hours in milliseconds
 
 # Logging

@@ -143,7 +143,12 @@ export default function RouteSearchPage() {
       setSelectedRoute(shade); // 기본으로 그늘 경로 선택
       setStep('compare');
     } catch (err: any) {
-      setError(err.response?.data?.message || '경로 탐색 실패');
+      const status = err.response?.status;
+      if (status === 403 || status === 401) {
+        setError('경로 검색 기능은 로그인이 필요하지 않습니다. 계속 시도해도 문제가 발생하면 페이지를 새로고침해주세요.');
+      } else {
+        setError(err.response?.data?.message || '경로 탐색 실패: 네트워크 오류가 발생했습니다.');
+      }
       console.error('경로 탐색 오류:', err);
     } finally {
       setLoading(false);

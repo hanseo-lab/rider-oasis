@@ -174,10 +174,42 @@ npm run dev              # 개발 서버 시작
 - ✅ `npm run dev`로 로컬 확인
 - ✅ 작동하면 바로 배포
 - ✅ 경기도 기후 데이터 적극 활용
-- ✅ "대충" 작동하면 충분
+-✅ "대충" 작동하면 충분
+
+---
+
+## 🚀 배포 환경 (Production Deployment)
+
+### Railway (Backend)
+**필수 환경 변수 설정:**
+```bash
+# Database (Supabase)
+SPRING_DATASOURCE_URL=jdbc:postgresql://[YOUR_SUPABASE_HOST]/postgres
+SPRING_DATASOURCE_USERNAME=[YOUR_USERNAME]
+SPRING_DATASOURCE_PASSWORD=[YOUR_PASSWORD]
+
+# Security
+JWT_SECRET=[GENERATE_STRONG_SECRET_KEY]
+
+# CORS
+CORS_ALLOWED_ORIGINS=https://rider-oasis.vercel.app,https://rider-oasis-project.vercel.app
+
+# TMAP API
+TMAP_API_KEY=[YOUR_TMAP_KEY]
+
+# Spring Profile
+SPRING_PROFILES_ACTIVE=prod
+```
+
+### Vercel (Frontend)
+**환경 변수 설정:**
+```bash
+VITE_API_BASE_URL=https://[YOUR_RAILWAY_APP].railway.app
+```
 
 ---
 
 **Let's Build Fast! ⚡**
 
 *경기도 기후 데이터 + 작동하는 프로토타입 = 성공*
+
