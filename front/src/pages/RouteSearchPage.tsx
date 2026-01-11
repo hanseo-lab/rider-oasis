@@ -156,11 +156,11 @@ export default function RouteSearchPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
       {/* 헤더 */}
-      <header className={`bg-gray-800 text-white p-4 shadow-lg sticky top-0 z-10 ${seasonMode === 'WINTER' ? 'border-b-2 border-orange-500/30' : 'border-b-2 border-green-500/30'}`}>
+      <header className={`bg-white dark:bg-gray-800 text-gray-900 dark:text-white p-4 shadow-lg sticky top-0 z-10 ${seasonMode === 'WINTER' ? 'border-b-2 border-orange-500/30' : 'border-b-2 border-green-500/30'} transition-colors duration-300`}>
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <h1 className={`text-2xl font-bold bg-gradient-to-r ${seasonMode === 'WINTER' ? 'from-orange-400 to-amber-400' : 'from-green-400 to-blue-400'} bg-clip-text text-transparent`}>
+          <h1 className={`text-2xl font-bold bg-gradient-to-r ${seasonMode === 'WINTER' ? 'from-orange-500 to-amber-500' : 'from-green-500 to-blue-500'} bg-clip-text text-transparent`}>
             {seasonMode === 'WINTER' ? '안전 경로 탐색' : '경로 탐색'}
           </h1>
           {step === 'compare' && (
@@ -171,7 +171,7 @@ export default function RouteSearchPage() {
                 setShadeRoute(null);
                 setSelectedRoute(null);
               }}
-              className="px-4 py-2 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors text-sm"
+              className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors text-sm"
             >
               새 경로 검색
             </button>
@@ -185,12 +185,12 @@ export default function RouteSearchPage() {
             {/* 왼쪽: 검색 폼 */}
             <div className="space-y-6">
               {/* 출발지 */}
-              <div className="bg-gray-800 rounded-xl p-6 shadow-xl">
+              <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-xl border border-gray-100 dark:border-gray-700 transition-colors duration-300">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
                     <MapPin className="w-5 h-5 text-white" />
                   </div>
-                  <h2 className="text-xl font-bold text-white">출발지</h2>
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">출발지</h2>
                 </div>
 
                 <div className="space-y-3">
@@ -201,7 +201,7 @@ export default function RouteSearchPage() {
                       onChange={(e) => setStartSearch(e.target.value)}
                       onKeyPress={(e) => e.key === 'Enter' && searchAddress(startSearch, true)}
                       placeholder="주소 검색 (예: 수원역)"
-                      className="flex-1 px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
+                      className="flex-1 px-4 py-3 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors"
                     />
                     <button
                       onClick={() => searchAddress(startSearch, true)}
@@ -212,8 +212,8 @@ export default function RouteSearchPage() {
                   </div>
 
                   {startLocation && (
-                    <div className="bg-gray-700 p-3 rounded-lg text-sm text-gray-300">
-                      <p className="font-semibold text-green-400 mb-1">선택된 위치:</p>
+                    <div className="bg-gray-100 dark:bg-gray-700 p-3 rounded-lg text-sm text-gray-600 dark:text-gray-300 transition-colors">
+                      <p className="font-semibold text-green-600 dark:text-green-400 mb-1">선택된 위치:</p>
                       <p className="truncate">{startLocation.address}</p>
                     </div>
                   )}
@@ -221,12 +221,12 @@ export default function RouteSearchPage() {
               </div>
 
               {/* 도착지 */}
-              <div className="bg-gray-800 rounded-xl p-6 shadow-xl">
+              <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-xl border border-gray-100 dark:border-gray-700 transition-colors duration-300">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
                     <Navigation className="w-5 h-5 text-white" />
                   </div>
-                  <h2 className="text-xl font-bold text-white">도착지</h2>
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">도착지</h2>
                 </div>
 
                 <div className="space-y-3">
@@ -237,7 +237,7 @@ export default function RouteSearchPage() {
                       onChange={(e) => setEndSearch(e.target.value)}
                       onKeyPress={(e) => e.key === 'Enter' && searchAddress(endSearch, false)}
                       placeholder="주소 검색 (예: 성남시청)"
-                      className="flex-1 px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="flex-1 px-4 py-3 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
                     />
                     <button
                       onClick={() => searchAddress(endSearch, false)}
@@ -248,8 +248,8 @@ export default function RouteSearchPage() {
                   </div>
 
                   {endLocation && (
-                    <div className="bg-gray-700 p-3 rounded-lg text-sm text-gray-300">
-                      <p className="font-semibold text-blue-400 mb-1">선택된 위치:</p>
+                    <div className="bg-gray-100 dark:bg-gray-700 p-3 rounded-lg text-sm text-gray-600 dark:text-gray-300 transition-colors">
+                      <p className="font-semibold text-blue-600 dark:text-blue-400 mb-1">선택된 위치:</p>
                       <p className="truncate">{endLocation.address}</p>
                     </div>
                   )}
@@ -260,7 +260,7 @@ export default function RouteSearchPage() {
               <button
                 onClick={handleSearchRoutes}
                 disabled={!startLocation || !endLocation || loading}
-                className={`w-full bg-gradient-to-r ${seasonMode === 'WINTER' ? 'from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600' : 'from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600'} text-white py-4 rounded-xl font-bold text-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2`}
+                className={`w-full bg-gradient-to-r ${seasonMode === 'WINTER' ? 'from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600' : 'from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600'} text-white py-4 rounded-xl font-bold text-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-xl`}
               >
                 {loading ? (
                   <>처리 중...</>
@@ -273,7 +273,8 @@ export default function RouteSearchPage() {
               </button>
 
               {error && (
-                <div className="bg-red-900/50 border border-red-700 text-red-200 px-4 py-3 rounded-lg text-sm">
+                <div className="bg-red-100 dark:bg-red-900/50 border border-red-200 dark:border-red-700 text-red-700 dark:text-red-200 px-4 py-3 rounded-lg text-sm flex items-center gap-2 animate-pulse">
+                  <span className="font-bold">⚠️</span>
                   {error}
                 </div>
               )}

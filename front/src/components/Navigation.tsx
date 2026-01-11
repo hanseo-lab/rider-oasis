@@ -1,7 +1,8 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
+import { useThemeStore } from '../store/themeStore';
 import { userAPI } from '../api/user';
-import { Map, Navigation as NavIcon, LogOut, User, Sun, Snowflake, ShieldCheck, MessageSquare } from 'lucide-react';
+import { Map, Navigation as NavIcon, LogOut, User, Sun, Snowflake, ShieldCheck, MessageSquare, Moon } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import type { SeasonMode } from '../types/user';
 
@@ -9,6 +10,7 @@ export default function Navigation() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout, isAuthenticated } = useAuthStore();
+  const { isDarkMode, toggleTheme } = useThemeStore();
   const [seasonMode, setSeasonMode] = useState<SeasonMode>('AUTO');
 
   useEffect(() => {
@@ -72,24 +74,24 @@ export default function Navigation() {
     const baseClass = "flex items-center justify-center gap-2 px-3 py-2 rounded-lg transition-all duration-200 border-2 cursor-pointer active:scale-95 hover:scale-105 transform";
 
     if (seasonMode === 'SUMMER') {
-      return `${baseClass} bg-gradient-to-r from-orange-500/30 to-red-500/30 border-orange-500 text-orange-400 hover:from-orange-500/40 hover:to-red-500/40 hover:shadow-lg hover:shadow-orange-500/20`;
+      return `${baseClass} bg-gradient-to-r from-orange-500/30 to-red-500/30 border-orange-500 text-orange-600 dark:text-orange-400 hover:from-orange-500/40 hover:to-red-500/40 hover:shadow-lg hover:shadow-orange-500/20`;
     } else if (seasonMode === 'WINTER') {
-      return `${baseClass} bg-gradient-to-r from-blue-500/30 to-cyan-500/30 border-blue-500 text-blue-400 hover:from-blue-500/40 hover:to-cyan-500/40 hover:shadow-lg hover:shadow-blue-500/20`;
+      return `${baseClass} bg-gradient-to-r from-blue-500/30 to-cyan-500/30 border-blue-500 text-blue-600 dark:text-blue-400 hover:from-blue-500/40 hover:to-cyan-500/40 hover:shadow-lg hover:shadow-blue-500/20`;
     } else {
-      return `${baseClass} bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600`;
+      return `${baseClass} bg-gray-200 dark:bg-gray-700 border-gray-400 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600`;
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 pb-16 md:pb-0">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-16 md:pb-0 transition-colors duration-300">
       {/* 상단 네비게이션 바 */}
-      <nav className="bg-gray-800 border-b border-gray-700 sticky top-0 z-50">
+      <nav className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             {/* 로고 & 메뉴 */}
             <div className="flex items-center gap-8">
               <Link to="/" className="flex items-center gap-2">
-                <ShieldCheck className="w-6 h-6 text-green-400" />
+                <ShieldCheck className="w-6 h-6 text-green-500 dark:text-green-400" />
                 <span className="text-xl font-bold bg-gradient-to-r from-orange-400 via-green-400 to-blue-400 bg-clip-text text-transparent">
                   경기 안심 로드
                 </span>
@@ -106,8 +108,8 @@ export default function Navigation() {
                       key={item.path}
                       to={item.path}
                       className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${isActive
-                          ? 'bg-gradient-to-r from-green-500 to-blue-500 text-white'
-                          : 'text-gray-300 hover:bg-gray-700'
+                        ? 'bg-gradient-to-r from-green-500 to-blue-500 text-white shadow-md'
+                        : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                         }`}
                     >
                       <Icon className="w-4 h-4" />
@@ -120,6 +122,15 @@ export default function Navigation() {
 
             {/* 사용자 정보 & 계절 모드 & 로그아웃 */}
             <div className="flex items-center gap-2 md:gap-4">
+              {/* 테마 토글 버튼 (새로 추가됨) */}
+              <button
+                onClick={toggleTheme}
+                className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                aria-label="테마 변경"
+              >
+                {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              </button>
+
               {/* 계절 모드 토글 (모바일에서는 아이콘만, 데스크탑에선 텍스트 포함) */}
               <button
                 onClick={handleSeasonToggle}
@@ -138,14 +149,14 @@ export default function Navigation() {
 
               {isAuthenticated ? (
                 <>
-                  <div className="hidden md:flex items-center gap-2 text-gray-300">
+                  <div className="hidden md:flex items-center gap-2 text-gray-600 dark:text-gray-300">
                     <User className="w-4 h-4" />
                     <span className="text-sm">{user?.username}</span>
                   </div>
 
                   <button
                     onClick={handleLogout}
-                    className="flex items-center gap-2 px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+                    className="flex items-center gap-2 px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
                     aria-label="로그아웃"
                   >
                     <LogOut className="w-4 h-4" />
@@ -172,7 +183,7 @@ export default function Navigation() {
       </main>
 
       {/* 모바일 하단 네비게이션 (MD 미만에서만 보임) */}
-      <div className="md:hidden fixed bottom-0 left-0 w-full bg-gray-800 border-t border-gray-700 z-50">
+      <div className="md:hidden fixed bottom-0 left-0 w-full bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 z-50 transition-colors duration-300">
         <div className="flex justify-around items-center h-16">
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -182,7 +193,7 @@ export default function Navigation() {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex flex-col items-center justify-center w-full h-full gap-1 ${isActive ? 'text-green-400' : 'text-gray-400 hover:text-gray-200'
+                className={`flex flex-col items-center justify-center w-full h-full gap-1 ${isActive ? 'text-green-500 dark:text-green-400' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
                   }`}
               >
                 <Icon className={`w-6 h-6 ${isActive ? 'fill-current' : ''}`} />

@@ -22,6 +22,7 @@ export default function CommunityPage() {
   const [selectedCategory, setSelectedCategory] = useState<CategoryType>('ALL');
   const [searchKeyword, setSearchKeyword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
 
@@ -40,6 +41,7 @@ export default function CommunityPage() {
   const loadPosts = async () => {
     try {
       setLoading(true);
+      setError('');
       let response;
 
       if (selectedCategory === 'ALL') {
@@ -52,6 +54,7 @@ export default function CommunityPage() {
       setTotalPages(response.totalPages);
     } catch (error) {
       console.error('게시글 로딩 실패:', error);
+      setError('게시글을 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
     } finally {
       setLoading(false);
     }
@@ -65,12 +68,14 @@ export default function CommunityPage() {
 
     try {
       setLoading(true);
+      setError('');
       const response = await communityAPI.searchPosts(searchKeyword, 0, 20);
       setPosts(response.content);
       setTotalPages(response.totalPages);
       setPage(0);
     } catch (error) {
       console.error('검색 실패:', error);
+      setError('검색 중 오류가 발생했습니다.');
     } finally {
       setLoading(false);
     }
@@ -82,11 +87,11 @@ export default function CommunityPage() {
 
     const Icon = cat.icon;
     const colors = {
-      gray: 'bg-gray-500/20 text-gray-300 border-gray-500',
-      yellow: 'bg-yellow-500/20 text-yellow-300 border-yellow-500',
-      blue: 'bg-blue-500/20 text-blue-300 border-blue-500',
-      red: 'bg-red-500/20 text-red-300 border-red-500',
-      green: 'bg-green-500/20 text-green-300 border-green-500',
+      gray: 'bg-gray-200 dark:bg-gray-500/20 text-gray-700 dark:text-gray-300 border-gray-400 dark:border-gray-500',
+      yellow: 'bg-yellow-100 dark:bg-yellow-500/20 text-yellow-700 dark:text-yellow-300 border-yellow-400 dark:border-yellow-500',
+      blue: 'bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300 border-blue-400 dark:border-blue-500',
+      red: 'bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-300 border-red-400 dark:border-red-500',
+      green: 'bg-green-100 dark:bg-green-500/20 text-green-700 dark:text-green-300 border-green-400 dark:border-green-500',
     };
 
     return (
@@ -115,60 +120,60 @@ export default function CommunityPage() {
 
   // Tailwind 스타일 정의
   const styles = {
-    container: "min-h-screen bg-gray-900 pb-20",
-    header: "bg-gradient-to-r from-purple-900/50 to-blue-900/50 border-b border-purple-500/30 p-6",
+    container: "min-h-screen bg-gray-50 dark:bg-gray-900 pb-20 transition-colors duration-300",
+    header: "bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-purple-500/30 p-6 transition-colors duration-300",
     headerInner: "max-w-7xl mx-auto flex items-center justify-between",
     headerTitleContainer: "",
-    headerTitle: "text-3xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent",
-    headerSubtitle: "text-gray-400 text-sm mt-1",
-    writeButton: "flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-lg hover:from-purple-600 hover:to-blue-600 transition-all font-semibold shadow-lg",
+    headerTitle: "text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400 bg-clip-text text-transparent",
+    headerSubtitle: "text-gray-500 dark:text-gray-400 text-sm mt-1",
+    writeButton: "flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-500 dark:to-blue-500 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 dark:hover:from-purple-600 dark:hover:to-blue-600 transition-all font-semibold shadow-lg",
 
     mainContentArea: "max-w-7xl mx-auto px-4 py-6",
 
     searchSection: "mb-6",
     searchBar: "flex gap-2",
     searchInputWrapper: "flex-1 relative",
-    searchIcon: "absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400",
-    searchInput: "w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500",
+    searchIcon: "absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 dark:text-gray-400",
+    searchInput: "w-full pl-10 pr-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors",
     searchButton: "px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-semibold",
 
     categoryTabs: "flex gap-2 mb-6 overflow-x-auto pb-2",
     categoryButton: (isSelected: boolean) => `
       flex items-center gap-2 px-4 py-2 rounded-lg whitespace-nowrap transition-all
       ${isSelected
-        ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg'
-        : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+        ? 'bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-500 dark:to-blue-500 text-white shadow-lg'
+        : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'
       }
     `,
 
     loadingState: "text-center py-20",
     loadingSpinner: "inline-block w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin",
-    loadingText: "text-gray-400 mt-4",
+    loadingText: "text-gray-500 dark:text-gray-400 mt-4",
 
     noPostsState: "text-center py-20",
-    noPostsIcon: "w-16 h-16 text-gray-600 mx-auto mb-4",
-    noPostsText: "text-gray-400",
+    noPostsIcon: "w-16 h-16 text-gray-400 dark:text-gray-600 mx-auto mb-4",
+    noPostsText: "text-gray-500 dark:text-gray-400",
 
     postGrid: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4",
-    postCard: "block bg-gray-800 rounded-xl p-6 hover:bg-gray-750 transition-all border border-gray-700 hover:border-purple-500/50 h-full",
+    postCard: "block bg-white dark:bg-gray-800 rounded-xl p-6 hover:shadow-lg dark:hover:bg-gray-750 transition-all border border-gray-200 dark:border-gray-700 hover:border-purple-500/50 h-full",
     postCardHeader: "flex items-start justify-between gap-4",
     postCardContent: "flex-1 min-w-0",
-    postCardTitle: "text-lg font-bold text-white mb-2 truncate hover:text-purple-400 transition-colors",
-    postCardPreview: "text-gray-400 text-sm mb-3 line-clamp-2",
-    postCardLocation: "flex items-center gap-1 text-green-400 text-xs mb-3",
+    postCardTitle: "text-lg font-bold text-gray-900 dark:text-white mb-2 truncate hover:text-purple-600 dark:hover:text-purple-400 transition-colors",
+    postCardPreview: "text-gray-600 dark:text-gray-400 text-sm mb-3 line-clamp-2",
+    postCardLocation: "flex items-center gap-1 text-green-600 dark:text-green-400 text-xs mb-3",
     postCardMeta: "flex items-center gap-4 text-xs text-gray-500",
-    postCardAuthor: "font-medium text-gray-400",
+    postCardAuthor: "font-medium text-gray-700 dark:text-gray-400",
     postCardMetaItem: "flex items-center gap-1",
-    postCardArrow: "w-5 h-5 text-gray-600 flex-shrink-0",
+    postCardArrow: "w-5 h-5 text-gray-400 dark:text-gray-600 flex-shrink-0",
 
     paginationContainer: "flex justify-center gap-2 mt-8",
-    paginationButton: "px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed",
+    paginationButton: "px-4 py-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors",
     paginationPageGroup: "flex items-center gap-2",
     paginationNumButton: (isActive: boolean) => `
-      w-10 h-10 rounded-lg font-semibold transition-colors
+      w-10 h-10 rounded-lg font-semibold transition-colors flex items-center justify-center
       ${isActive
-        ? 'bg-purple-500 text-white'
-        : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+        ? 'bg-purple-600 dark:bg-purple-500 text-white'
+        : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'
       }
     `,
   };
@@ -220,6 +225,14 @@ export default function CommunityPage() {
             </button>
           </div>
         </div>
+
+        {/* 에러 배너 */}
+        {error && (
+          <div className="mb-6 bg-red-100 dark:bg-red-900/50 border border-red-200 dark:border-red-700 text-red-700 dark:text-red-200 px-4 py-3 rounded-lg text-sm flex items-center gap-2 animate-pulse">
+            <AlertTriangle className="w-5 h-5" />
+            {error}
+          </div>
+        )}
 
         {/* 카테고리 탭 */}
         <div className={styles.categoryTabs}>
