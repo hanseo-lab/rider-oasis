@@ -11,7 +11,7 @@
 
 ## 🔗 배포 주소 (Live Demo)
 
-👉 **웹사이트 바로가기:** [https://rider-oasis.vercel.app](https://rider-oasis.vercel.app)
+👉 **웹사이트 바로가기:** [https://rider-oasis.vercel.app](https://rider-oasis-project.vercel.app/)
 
 ---
 
