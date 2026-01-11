@@ -20,16 +20,10 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<ApiResponse<AuthResponse>> signup(@Valid @RequestBody SignupRequest request) {
-        try {
-            AuthResponse response = authService.signup(request);
-            return ResponseEntity
-                    .status(HttpStatus.CREATED)
-                    .body(ApiResponse.success("회원가입 성공", response));
-        } catch (RuntimeException e) {
-            return ResponseEntity
-                    .badRequest()
-                    .body(ApiResponse.error(e.getMessage()));
-        }
+        AuthResponse response = authService.signup(request);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(ApiResponse.success("회원가입 성공", response));
     }
 
     @PostMapping("/login")

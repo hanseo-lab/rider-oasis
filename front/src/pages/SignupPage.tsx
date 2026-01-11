@@ -59,10 +59,23 @@ export default function SignupPage() {
       navigate('/');
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || '회원가입 실패: 서버 오류가 발생했습니다.';
-      setError(errorMessage);
+      setError(getFriendlyErrorMessage(errorMessage));
     } finally {
       setLoading(false);
     }
+  };
+
+  const getFriendlyErrorMessage = (msg: string) => {
+    if (msg.includes('Unable to rollback') || msg.includes('JDBC') || msg.includes('Connection') || msg.includes('Transaction')) {
+      return '일시적인 서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+    }
+    if (msg.includes('User already exists') || msg.includes('사용자명')) {
+      return '이미 사용 중인 사용자명입니다.';
+    }
+    if (msg.includes('Email already exists') || msg.includes('이메일')) {
+      return '이미 사용 중인 이메일입니다.';
+    }
+    return msg;
   };
 
   return (

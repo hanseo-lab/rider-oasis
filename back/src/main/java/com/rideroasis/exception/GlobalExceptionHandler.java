@@ -82,6 +82,14 @@ public class GlobalExceptionHandler {
                                 .body(ApiResponse.error("외부 서비스 연결에 실패했습니다. 잠시 후 다시 시도해주세요."));
         }
 
+        // 비즈니스 로직 예외 (BusinessException)
+        @ExceptionHandler(BusinessException.class)
+        public ResponseEntity<ApiResponse<String>> handleBusinessException(BusinessException e) {
+                return ResponseEntity
+                                .status(HttpStatus.BAD_REQUEST)
+                                .body(ApiResponse.error(e.getMessage()));
+        }
+
         // 기타 모든 예외
         @ExceptionHandler(Exception.class)
         public ResponseEntity<ApiResponse<String>> handleException(Exception e) {
