@@ -26,41 +26,57 @@ public class AuthService {
 
         @Transactional
         public AuthResponse signup(SignupRequest request) {
-                // 중복 체크
-                if (userRepository.existsByUsername(request.getUsername())) {
-                        throw new RuntimeException("이미 사용 중인 사용자명입니다.");
+                try {
+                        // 중복 체크
+                        if (userRepository.existsByUsername(request.getUsername())) {
+                                throw new RuntimeException("이미 사용 중인 사용자명입니다.");
+                        }
+                        if (userRepository.existsByEmail(request.getEmail())) {
+                                throw new RuntimeException("이미 사용 중인 이메일입니다.");
+                        }
+
+                        // 사용자 생성
+                        User user = User.builder()
+                                        .username(request.getUsername())
+                                        .email(request.getEmail())
+                                        .password(passwordEncoder.encode(request.getPassword()))
+                                        .nickname(request.getNickname() != null ? request.getNickname()
+                                                        : request.getUsername())
+                                        .role(User.Role.RIDER)
+                                        .build();
+
+                        user = userRepository.save(user);
+
+                        // JWT 토큰 생성
+                        Authentication authentication = authenticationManager.authenticate(
+                                        new UsernamePasswordAuthenticationToken(
+                                                        request.getEmail(),
+                                                        request.getPassword()));
+
+                        String token = tokenProvider.generateToken(authentication);
+
+                        return AuthResponse.builder()
+                                        .token(token)
+                                        .type("Bearer")
+                                        .userId(user.getId())
+                                        .username(user.getUsername())
+                                        .email(user.getEmail())
+                                        .role(user.getRole().name())
+                                        .build();
+                } catch (RuntimeException e) {
+                        // 중복 체크 에러는 그대로 전달
+                        if (e.getMessage().contains("이미 사용 중인")) {
+                                throw e;
+                        }
+                        // JWT 생성 오류 등 기타 에러는 일반 메시지로 변환
+                        System.err.println("회원가입 처리 중 오류 발생: " + e.getMessage());
+                        e.printStackTrace();
+                        throw new RuntimeException("회원가입 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+                } catch (Exception e) {
+                        System.err.println("회원가입 처리 중 예상치 못한 오류 발생: " + e.getMessage());
+                        e.printStackTrace();
+                        throw new RuntimeException("회원가입 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
                 }
-                if (userRepository.existsByEmail(request.getEmail())) {
-                        throw new RuntimeException("이미 사용 중인 이메일입니다.");
-                }
-
-                // 사용자 생성
-                User user = User.builder()
-                                .username(request.getUsername())
-                                .email(request.getEmail())
-                                .password(passwordEncoder.encode(request.getPassword()))
-                                .nickname(request.getNickname() != null ? request.getNickname() : request.getUsername())
-                                .role(User.Role.RIDER)
-                                .build();
-
-                user = userRepository.save(user);
-
-                // JWT 토큰 생성
-                Authentication authentication = authenticationManager.authenticate(
-                                new UsernamePasswordAuthenticationToken(
-                                                request.getEmail(),
-                                                request.getPassword()));
-
-                String token = tokenProvider.generateToken(authentication);
-
-                return AuthResponse.builder()
-                                .token(token)
-                                .type("Bearer")
-                                .userId(user.getId())
-                                .username(user.getUsername())
-                                .email(user.getEmail())
-                                .role(user.getRole().name())
-                                .build();
         }
 
         public AuthResponse login(LoginRequest request) {
