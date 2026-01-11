@@ -18,17 +18,15 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String emailOrUsername) throws UsernameNotFoundException {
-        // 癒쇱? email濡??쒕룄
+        // Try email first
         java.util.Optional<User> user = userRepository.findByEmail(emailOrUsername);
-        
-        // email濡?李얠? 紐삵븯硫?username?쇰줈 ?쒕룄
+
+        // If not found by email, try username
         if (user.isEmpty()) {
             user = userRepository.findByUsername(emailOrUsername);
         }
-        
-        return user.orElseThrow(() -> 
-            new UsernameNotFoundException("?대떦 ?대찓???ъ슜?먮챸??媛吏??ъ슜?먮? 李얠쓣 ???놁뒿?덈떎: " + emailOrUsername));
+
+        return user.orElseThrow(
+                () -> new UsernameNotFoundException("User not found with email/username: " + emailOrUsername));
     }
 }
-
-
