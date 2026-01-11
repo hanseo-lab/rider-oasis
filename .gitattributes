@@ -1,0 +1,10 @@
+# Java files should always use LF line endings
+*.java text eol=lf
+
+# Windows batch files should use CRLF
+*.bat text eol=crlf
+gradlew.bat text eol=crlf
+
+# Binary files
+*.jar binary
+*.class binary
