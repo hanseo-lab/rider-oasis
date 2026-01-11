@@ -4,6 +4,7 @@ import com.rideroasis.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -56,13 +57,13 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                         // 경로 검색: POST는 익명 허용, GET은 인증 필요 (내 경로 목록)
-                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/routes").permitAll()
-                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/routes").authenticated()
-                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/routes/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/routes").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/routes").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/routes/**").authenticated()
 
                         // 커뮤니티: GET은 모두 허용, POST/PUT/DELETE는 인증 필요
-                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/community/posts/**").permitAll()
-                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/community/posts/**")
+                        .requestMatchers(HttpMethod.GET, "/community/posts/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/community/posts/**")
                         .authenticated()
 
                         .requestMatchers("/actuator/**").permitAll() // 상태 확인 허용
