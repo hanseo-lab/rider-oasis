@@ -53,6 +53,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                         // 경로 검색: POST는 익명 허용, GET은 인증 필요 (내 경로 목록)
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/routes").permitAll()
