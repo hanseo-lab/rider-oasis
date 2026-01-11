@@ -1,4 +1,4 @@
-package com.rideroasis.service;
+﻿package com.rideroasis.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -39,7 +39,7 @@ public class RouteService {
         double shadeRatio = 0.0;
         double heatExposure = 0.0;
 
-        // FASTEST ?�는 COMFORT 모드??TMAP ?�용 (?�제 ?�로)
+        // FASTEST ?먮뒗 COMFORT 紐⑤뱶??TMAP ?ъ슜 (?ㅼ젣 ?꾨줈)
         if (request.getRouteType() == Route.RouteType.FASTEST || request.getRouteType() == Route.RouteType.COMFORT) {
             try {
                 TMapService.TMapRouteResult tMapResult = tMapService.getPedestrianRoute(
@@ -51,7 +51,7 @@ public class RouteService {
                 estimatedTime = tMapResult.getTotalTime();
 
             } catch (Exception e) {
-                // TMAP ?�패 ??A* ?�백
+                // TMAP ?ㅽ뙣 ??A* ?대갚
                 AStarPathfinder.PathResult pathResult = pathfinder.findOptimalPath(
                         request.getStartLat(), request.getStartLng(),
                         request.getEndLat(), request.getEndLng(),
@@ -63,7 +63,7 @@ public class RouteService {
                 heatExposure = pathResult.getHeatExposure();
             }
         } else {
-            // SHADE_OPTIMIZED ?��? 기존 A* ?�고리즘 ?�용
+            // SHADE_OPTIMIZED ?깆? 湲곗〈 A* ?뚭퀬由ъ쬁 ?ъ슜
             AStarPathfinder.PathResult pathResult = pathfinder.findOptimalPath(
                     request.getStartLat(), request.getStartLng(),
                     request.getEndLat(), request.getEndLng(),
@@ -77,9 +77,9 @@ public class RouteService {
             heatExposure = pathResult.getHeatExposure();
         }
 
-        // Route ?�티???�성
+        // Route ?뷀떚???앹꽦
         Route route = Route.builder()
-                .user(user.getId() != null ? user : null) // ID가 ?�는 ?�용?�만 ?�정
+                .user(user.getId() != null ? user : null) // ID媛 ?덈뒗 ?ъ슜?먮쭔 ?ㅼ젙
                 .routeName(request.getRouteName())
                 .startLat(request.getStartLat())
                 .startLng(request.getStartLng())
@@ -92,12 +92,12 @@ public class RouteService {
                 .estimatedTime(estimatedTime)
                 .shadeRatio(shadeRatio)
                 .heatExposure(heatExposure)
-                .shelterCount(0) // TODO: 경로 ???�?�시????계산
+                .shelterCount(0) // TODO: 寃쎈줈 ????쇱떆????怨꾩궛
                 .routeType(request.getRouteType())
                 .build();
 
-        // 로그?�한 ?�용?�만 DB???�??
-        if (user != null &amp;&amp; user.getId() != null) {
+        // 濡쒓렇?명븳 ?ъ슜?먮쭔 DB?????
+        if (user != null && user.getId() != null) {
             route = routeRepository.save(route);
         }
         
@@ -116,12 +116,12 @@ public class RouteService {
     @Transactional(readOnly = true)
     public RouteResponse getRouteById(Long routeId) {
         Route route = routeRepository.findById(routeId)
-                .orElseThrow(() -> new RuntimeException("경로�?찾을 ???�습?�다."));
+                .orElseThrow(() -> new RuntimeException("寃쎈줈瑜?李얠쓣 ???놁뒿?덈떎."));
 
-        // 권한 체크
+        // 沅뚰븳 泥댄겕
         User user = getCurrentUser();
         if (!route.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("?�근 권한???�습?�다.");
+            throw new RuntimeException("?묎렐 沅뚰븳???놁뒿?덈떎.");
         }
 
         return RouteResponse.fromEntity(route);
@@ -130,11 +130,11 @@ public class RouteService {
     @Transactional
     public void deleteRoute(Long routeId) {
         Route route = routeRepository.findById(routeId)
-                .orElseThrow(() -> new RuntimeException("경로�?찾을 ???�습?�다."));
+                .orElseThrow(() -> new RuntimeException("寃쎈줈瑜?李얠쓣 ???놁뒿?덈떎."));
 
         User user = getCurrentUser();
         if (!route.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("?�근 권한???�습?�다.");
+            throw new RuntimeException("?묎렐 沅뚰븳???놁뒿?덈떎.");
         }
 
         routeRepository.delete(route);
@@ -143,11 +143,11 @@ public class RouteService {
     @Transactional
     public RouteResponse toggleFavorite(Long routeId) {
         Route route = routeRepository.findById(routeId)
-                .orElseThrow(() -> new RuntimeException("경로�?찾을 ???�습?�다."));
+                .orElseThrow(() -> new RuntimeException("寃쎈줈瑜?李얠쓣 ???놁뒿?덈떎."));
 
         User user = getCurrentUser();
         if (!route.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("?�근 권한???�습?�다.");
+            throw new RuntimeException("?묎렐 沅뚰븳???놁뒿?덈떎.");
         }
 
         route.setIsFavorite(!route.getIsFavorite());
@@ -160,7 +160,7 @@ public class RouteService {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()
                 || "anonymousUser".equals(authentication.getPrincipal())) {
-            // ?�명 ?�용?��? ?�한 기본 User 객체 반환 (ID??null)
+            // ?듬챸 ?ъ슜?먮? ?꾪븳 湲곕낯 User 媛앹껜 諛섑솚 (ID??null)
             return User.builder()
                     .username("anonymous")
                     .email("anonymous@rideroasis.com")
@@ -171,10 +171,10 @@ public class RouteService {
         }
         String emailOrUsername = authentication.getName();
 
-        // email�?먼�? 조회, ?�으�?username?�로 조회
+        // email濡?癒쇱? 議고쉶, ?놁쑝硫?username?쇰줈 議고쉶
         return userRepository.findByEmail(emailOrUsername)
                 .orElseGet(() -> userRepository.findByUsername(emailOrUsername)
-                        .orElseThrow(() -> new RuntimeException("?�용?��? 찾을 ???�습?�다: " + emailOrUsername)));
+                        .orElseThrow(() -> new RuntimeException("?ъ슜?먮? 李얠쓣 ???놁뒿?덈떎: " + emailOrUsername)));
     }
 
     private String convertToGeoJson(AStarPathfinder.PathResult pathResult) {
@@ -190,7 +190,7 @@ public class RouteService {
 
             return objectMapper.writeValueAsString(geoJson);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("GeoJSON 변???�패", e);
+            throw new RuntimeException("GeoJSON 蹂???ㅽ뙣", e);
         }
     }
 
@@ -201,9 +201,10 @@ public class RouteService {
             geoJson.put("coordinates", path);
             return objectMapper.writeValueAsString(geoJson);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("GeoJSON 변???�패", e);
+            throw new RuntimeException("GeoJSON 蹂???ㅽ뙣", e);
         }
     }
 }
+
 
 

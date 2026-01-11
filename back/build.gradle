@@ -57,3 +57,8 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+// UTF-8 인코딩 설정 (Railway 빌드 에러 방지)
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
