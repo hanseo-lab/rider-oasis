@@ -64,26 +64,37 @@ public class AuthService {
         }
 
         public AuthResponse login(LoginRequest request) {
-                Authentication authentication = authenticationManager.authenticate(
-                                new UsernamePasswordAuthenticationToken(
-                                                request.getEmail(),
-                                                request.getPassword()));
+                try {
+                        Authentication authentication = authenticationManager.authenticate(
+                                        new UsernamePasswordAuthenticationToken(
+                                                        request.getEmail(),
+                                                        request.getPassword()));
 
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
 
-                String token = tokenProvider.generateToken(authentication);
+                        String token = tokenProvider.generateToken(authentication);
 
-                User user = userRepository.findByEmail(request.getEmail())
-                                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+                        User user = userRepository.findByEmail(request.getEmail())
+                                        .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 
-                return AuthResponse.builder()
-                                .token(token)
-                                .type("Bearer")
-                                .userId(user.getId())
-                                .username(user.getUsername())
-                                .email(user.getEmail())
-                                .role(user.getRole().name())
-                                .build();
+                        return AuthResponse.builder()
+                                        .token(token)
+                                        .type("Bearer")
+                                        .userId(user.getId())
+                                        .username(user.getUsername())
+                                        .email(user.getEmail())
+                                        .role(user.getRole().name())
+                                        .build();
+                } catch (org.springframework.security.authentication.BadCredentialsException e) {
+                        throw new RuntimeException("이메일 또는 비밀번호가 일치하지 않습니다.");
+                } catch (org.springframework.security.core.userdetails.UsernameNotFoundException e) {
+                        throw new RuntimeException("이메일 또는 비밀번호가 일치하지 않습니다.");
+                } catch (Exception e) {
+                        // JWT 생성 오류 등 기타 모든 에러를 일반적인 메시지로 변환
+                        System.err.println("로그인 처리 중 오류 발생: " + e.getMessage());
+                        e.printStackTrace();
+                        throw new RuntimeException("로그인 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+                }
         }
 
         public String findEmail(String nickname) {
